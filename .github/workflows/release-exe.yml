@@ -1,0 +1,98 @@
+name: Build and Release Frost Launcher EXE
+
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - main
+    paths:
+      - 'fl-electron-app/**'
+      - 'fl-keystone-ui/**'
+      - 'fl-runtime/**'
+      - 'fl-runtime-api/**'
+      - 'packages/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release Tag (leave empty to use package.json version)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build Keystone UI (Renderer)
+        run: pnpm --prefix=fl-keystone-ui build
+
+      - name: Compile Main Process & Pack Application
+        run: |
+          pnpm --prefix=fl-electron-app compile
+          pnpm --prefix=fl-electron-app build
+
+      - name: Get Version and Tag
+        id: vars
+        shell: pwsh
+        run: |
+          $pkg = Get-Content fl-electron-app/package.json | ConvertFrom-Json
+          $ver = $pkg.version
+          Write-Output "version=$ver" >> $env:GITHUB_OUTPUT
+          if ("${{ github.event.inputs.tag_name }}" -ne "") {
+            $tag = "${{ github.event.inputs.tag_name }}"
+          } elseif ("${{ github.ref_name }}" -like "v*") {
+            $tag = "${{ github.ref_name }}"
+          } else {
+            $tag = "v$ver"
+          }
+          Write-Output "tag=$tag" >> $env:GITHUB_OUTPUT
+          Write-Host "Target Version: $ver | Target Tag: $tag"
+
+      - name: Install NSIS
+        shell: pwsh
+        run: |
+          if (-not (Get-Command makensis -ErrorAction SilentlyContinue)) {
+            choco install nsis -y
+            Write-Host "C:\Program Files (x86)\NSIS" >> $env:GITHUB_PATH
+          }
+
+      - name: Build Windows Installer (.exe)
+        shell: pwsh
+        run: |
+          $ver = "${{ steps.vars.outputs.version }}"
+          makensis /DVERSION=$ver fl-electron-app/installer.nsi
+
+      - name: Publish or Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.vars.outputs.tag }}
+          name: Frost Launcher ${{ steps.vars.outputs.tag }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            fl-electron-app/build/output/Frost-Launcher-Setup-*.exe
+            fl-electron-app/build/output/app-*.asar.gz
+            fl-electron-app/build/output/manifest.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

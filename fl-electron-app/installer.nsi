@@ -1,7 +1,11 @@
 !include "MUI2.nsh"
 
+!ifndef VERSION
+  !define VERSION "0.73.1"
+!endif
+
 Name "Frost Launcher"
-OutFile "build\output\Frost-Launcher-Setup-0.73.1.exe"
+OutFile "build\output\Frost-Launcher-Setup-${VERSION}.exe"
 InstallDir "$LOCALAPPDATA\Programs\Frost Launcher"
 RequestExecutionLevel user
 SetCompressor /SOLID lzma
@@ -36,7 +40,7 @@ Section "Install"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\FrostLauncher" "UninstallString" '"$INSTDIR\Uninstall.exe"'
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\FrostLauncher" "DisplayIcon" "$INSTDIR\Frost Launcher.exe"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\FrostLauncher" "Publisher" "Floor Frost Creations"
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\FrostLauncher" "DisplayVersion" "0.73.1"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\FrostLauncher" "DisplayVersion" "${VERSION}"
 SectionEnd
 
 Section "Uninstall"
