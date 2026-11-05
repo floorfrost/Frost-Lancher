@@ -12,6 +12,9 @@
   <a href="https://floorfrost.xo.je">
     <img src="https://img.shields.io/badge/Official%20Site-floorfrost.xo.je-blue?style=for-the-badge" alt="Official Website">
   </a>
+  <a href="https://github.com/floorfrost/Frost-Lancher/releases/latest">
+    <img src="https://img.shields.io/badge/⬇️%20Download-Windows%20.exe-0078D7?style=for-the-badge&logo=windows&logoColor=white" alt="Direct Download">
+  </a>
   <a href="https://www.youtube.com/@FloorFrost">
     <img src="https://img.shields.io/badge/YouTube-Floor%20Frost-red?style=for-the-badge&logo=youtube" alt="YouTube">
   </a>
@@ -22,11 +25,26 @@
 
 ---
 
+## 🚀 Direct Download & Quick Start
+
+<p align="center">
+  <a href="https://github.com/floorfrost/Frost-Lancher/releases/latest">
+    <img src="https://img.shields.io/badge/📥%20Download%20Latest%20Release-Frost%20Launcher-success?style=for-the-badge&logo=windows&logoColor=white" alt="Download Latest Release">
+  </a>
+</p>
+
+### 🎮 How to Install & Play:
+1. **[Click here to Download Frost Launcher (.exe)](https://github.com/floorfrost/Frost-Lancher/releases/latest)** from the latest release.
+2. Run `Frost Launcher.exe` on your Windows PC.
+3. **Automatic Downloads & Setup**: As soon as you open the launcher, it automatically initializes and starts downloading all required core assets, Java runtime, and launcher dependencies. Everything is configured out of the box!
+
+---
+
 ## ❄️ About Frost Launcher
 
 **Frost Launcher** is a modern, fast, and feature-rich Minecraft launcher redesigned and maintained by **Floor Frost Creations**. It provides seamless Minecraft version management, high-speed concurrent downloads, and built-in support for modloaders and modpacks.
 
-Visit our **[Official Site (floorfrost.xo.je)](https://floorfrost.xo.je)** for downloads and updates!
+Visit our **[Official Site (floorfrost.xo.je)](https://floorfrost.xo.je)** for more information and updates!
 
 ---
 
