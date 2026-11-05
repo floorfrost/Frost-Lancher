@@ -98,6 +98,7 @@
             :title="t('setting.about')"
             icon="info"
           />
+          <SettingUpdate class="mb-4" />
           <SettingAbout />
         </section>
       </div>
@@ -114,6 +115,7 @@
 import { ref, computed, nextTick, onMounted, onUnmounted, provide, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import SettingUpdateInfoDialog from './SettingUpdateInfoDialog.vue'
+import SettingUpdate from './SettingUpdate.vue'
 import SettingGeneral from './SettingGeneral.vue'
 import SettingMigrationDialog from './SettingMigrationDialog.vue'
 import SettingGlobal from './SettingGlobal.vue'

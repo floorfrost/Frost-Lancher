@@ -28,8 +28,8 @@ export const config = {
   // set this to your own repo!
   publish: [{
     provider: 'github',
-    owner: 'voxelum',
-    repo: 'x-minecraft-launcher',
+    owner: 'floorfrost',
+    repo: 'Frost-Lancher',
   }],
   files: [{
     from: 'dist',

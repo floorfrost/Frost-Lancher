@@ -29,8 +29,8 @@ app.on('web-contents-created', (event, contents) => {
 
 autoUpdater.setFeedURL({
   provider: 'github',
-  repo: 'x-minecraft-launcher',
-  owner: 'voxelum',
+  repo: 'Frost-Lancher',
+  owner: 'floorfrost',
 })
 autoUpdater.logger = null
 

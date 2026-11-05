@@ -60,7 +60,7 @@ async function downloadAsarUpdate(
     platformFlag += '-ia32'
   }
   const file = `app-${version}-${platformFlag}.asar`
-  const github = `https://github.com/Voxelum/x-minecraft-launcher/releases/download/v${version}/${file}`
+  const github = `https://github.com/floorfrost/Frost-Lancher/releases/download/v${version}/${file}`
 
   // Skip the download entirely if the pending file already matches the
   // published checksum.
@@ -320,41 +320,44 @@ export class ElectronUpdater implements LauncherAppUpdater {
 
   async #getUpdateFromSelfHost(): Promise<ReleaseInfo> {
     const app = this.app
-    this.logger.log('Try get update from selfhost')
-    const { allowPrerelease, locale } = await app.registry.get(kSettings)
-    const queryString = `version=v${app.version}&prerelease=${allowPrerelease || false}`
-    const primary = await this.app
-      .fetch(`https://api.xmcl.app/latest?${queryString}`, {
+    this.logger.log('Try get update from GitHub floorfrost/Frost-Lancher')
+    const response = await this.app
+      .fetch('https://api.github.com/repos/floorfrost/Frost-Lancher/releases/latest', {
         headers: {
-          'Accept-Language': locale,
+          'Accept': 'application/vnd.github.v3+json',
+          'User-Agent': 'Frost-Launcher',
         },
       })
       .catch(() => undefined)
-    // The Deno edge may return a regional 404. Fall back for any non-success
-    // response as well as a transport failure.
-    const response = primary?.ok
-      ? primary
-      : await this.app.fetch(`https://xmcl-core-api.azurewebsites.net/api/latest?${queryString}`, {
-        headers: {
-          'Accept-Language': locale,
-        },
-      })
+
+    if (!response || response.status === 404) {
+      this.logger.log('No releases published yet on floorfrost/Frost-Lancher')
+      return {
+        name: `v${app.version}`,
+        body: '',
+        date: new Date().toISOString(),
+        files: [],
+        newUpdate: false,
+        operation: ElectronUpdateOperation.Manual,
+      }
+    }
+
     if (!response.ok) {
       throw new AnyError(
         'UpdateError',
-        `Fail to get update from selfhost: ${await response.text()}`,
+        `Fail to get update from GitHub: ${await response.text()}`,
         {},
         { status: response.status },
       )
     }
     const result = (await response.json()) as any
-    const files = result.assets.map((a: any) => ({
+    const files = (result.assets || []).map((a: any) => ({
       url: a.browser_download_url,
       name: a.name,
     })) as Array<{ url: string; name: string }>
     const platformString =
       app.platform.os === 'windows' ? 'win' : app.platform.os === 'osx' ? 'mac' : 'linux'
-    const version = result.tag_name.substring(1)
+    const version = result.tag_name.startsWith('v') ? result.tag_name.substring(1) : result.tag_name
     const updateInfo: ReleaseInfo = {
       name: result.tag_name,
       body: result.body,
@@ -382,7 +385,7 @@ export class ElectronUpdater implements LauncherAppUpdater {
           : ElectronUpdateOperation.Manual
     }
 
-    this.logger.log(`Got operation=${updateInfo.operation} update from selfhost`)
+    this.logger.log(`Got operation=${updateInfo.operation} update for ${result.tag_name}`)
 
     return updateInfo
   }

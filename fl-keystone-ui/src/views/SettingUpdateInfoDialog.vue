@@ -140,10 +140,10 @@ const hintRedownload = computed(() =>
 )
 
 const openOfficialWebsite = () => {
-  window.open('https://github.com/voxelum/x-minecraft-launcher', 'browser')
+  window.open('https://floorfrost.xo.je', 'browser')
 }
 const openGithub = () => {
-  window.open('https://github.com/voxelum/x-minecraft-launcher/releases', 'browser')
+  window.open('https://github.com/floorfrost/Frost-Lancher/releases', 'browser')
 }
 </script>
 

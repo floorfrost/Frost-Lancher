@@ -75,7 +75,7 @@ import { useAuthProfileImportNotification } from '@/composables/authProfileImpor
 import { useAgentChatHotkey } from '@/composables/agentChat'
 import { kAgent, installAgentDevLauncher, useAgent } from '@/composables/agent'
 import { useCommandPaletteHotkey } from '@/composables/commandPalette'
-import { kDialogModel } from '@/composables/dialog'
+import { kDialogModel, useDialog } from '@/composables/dialog'
 import { useDefaultErrorHandler } from '@/composables/errorHandler'
 import { kInstance } from '@/composables/instance'
 import { kInstances } from '@/composables/instances'
@@ -254,6 +254,27 @@ const { isDark } = injection(kTheme)
 const { notify } = useNotifier()
 useDefaultErrorHandler(notify)
 useAuthProfileImportNotification(notify)
+
+const { state: settingsState } = injection(kSettingsState)
+const { show: showUpdateInfoDialog } = useDialog('update-info')
+
+watch(() => settingsState.value?.updateInfo, (info) => {
+  if (info && info.newUpdate) {
+    notify({
+      level: 'info',
+      icon: 'system_update',
+      title: 'नया अपडेट उपलब्ध है!',
+      body: `Frost Launcher ${info.name} उपलब्ध है। अपडेट करने के लिए क्लिक करें।`,
+      operations: [
+        {
+          text: 'अपडेट करें',
+          icon: 'system_update',
+          handler: () => showUpdateInfoDialog(),
+        },
+      ],
+    })
+  }
+})
 
 // Initial Boot Loading State
 const { instances: appInstances } = injection(kInstances)
