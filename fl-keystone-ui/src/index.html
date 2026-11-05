@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frost Launcher</title>
+    <link rel="stylesheet" href="./assets/google.font.css">
+    <link rel="stylesheet" href="./assets/preload.css">
+    <script async src="http://launcher/flights"></script>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #app {
+            width: 100%;
+            height: 100%;
+        }
+
+        body.unloaded {
+            background: radial-gradient(circle at 50% 45%, #0f172a 0%, #020617 100%) !important;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body.unloaded #app {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Frosted Glass Splash Card */
+        .frost-splash-card {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 36px 44px;
+            background: rgba(15, 23, 42, 0.70);
+            backdrop-filter: blur(28px) saturate(190%);
+            -webkit-backdrop-filter: blur(28px) saturate(190%);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 28px;
+            box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.7), inset 0 1px 1px 0 rgba(255, 255, 255, 0.25);
+            min-width: 340px;
+            animation: frost-card-appear 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Logo Wrap with Glowing Ring */
+        .frost-splash-logo-wrap {
+            position: relative;
+            width: 96px;
+            height: 96px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .frost-splash-glow {
+            position: absolute;
+            inset: -6px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+            opacity: 0.65;
+            filter: blur(14px);
+            animation: frost-logo-pulse 2.2s ease-in-out infinite;
+        }
+
+        .frost-splash-logo {
+            position: relative;
+            z-index: 2;
+            width: 96px;
+            height: 96px;
+            border-radius: 20px;
+            object-fit: cover;
+            border: 1.5px solid rgba(255, 255, 255, 0.35);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+        }
+
+        /* Title & Subtitle */
+        .frost-splash-title {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+            background: linear-gradient(135deg, #ffffff 0%, #bae6fd 60%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            filter: drop-shadow(0 2px 8px rgba(56, 189, 248, 0.35));
+        }
+
+        .frost-splash-subtitle {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.22em;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+
+        /* Animated Progress Gauge */
+        .frost-splash-progress {
+            width: 250px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 9999px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+            margin-bottom: 16px;
+        }
+
+        .frost-splash-progress-beam {
+            position: absolute;
+            top: 0;
+            left: -80px;
+            width: 80px;
+            height: 100%;
+            background: linear-gradient(90deg, transparent 0%, #38bdf8 50%, #ffffff 80%, #38bdf8 90%, transparent 100%);
+            border-radius: 9999px;
+            filter: drop-shadow(0 0 6px #38bdf8);
+            animation: frost-beam-sweep 1.6s ease-in-out infinite;
+        }
+
+        /* Status text with pulsing dot */
+        .frost-splash-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.85);
+            letter-spacing: 0.02em;
+        }
+
+        .frost-splash-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #38bdf8;
+            box-shadow: 0 0 8px #38bdf8;
+            animation: frost-dot-pulse 1.4s ease-in-out infinite;
+        }
+
+        /* Keyframes */
+        @keyframes frost-card-appear {
+            0% {
+                opacity: 0;
+                transform: scale(0.94) translateY(12px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        @keyframes frost-logo-pulse {
+            0%, 100% {
+                opacity: 0.55;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.85;
+                transform: scale(1.08);
+            }
+        }
+
+        @keyframes frost-beam-sweep {
+            0% {
+                left: -80px;
+            }
+            50% {
+                left: calc(100% - 20px);
+            }
+            100% {
+                left: -80px;
+            }
+        }
+
+        @keyframes frost-dot-pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.3);
+                opacity: 0.5;
+            }
+        }
+    </style>
+</head>
+
+<body class="overflow-hidden unloaded">
+    <div id="app">
+        <div class="frost-splash-card">
+            <div class="frost-splash-logo-wrap">
+                <div class="frost-splash-glow"></div>
+                <img src="./assets/logo.png" alt="Frost Launcher" class="frost-splash-logo">
+            </div>
+            <div class="frost-splash-title">Frost Launcher</div>
+            <div class="frost-splash-subtitle">Initialising System</div>
+            <div class="frost-splash-progress">
+                <div class="frost-splash-progress-beam"></div>
+            </div>
+            <div class="frost-splash-status">
+                <span class="frost-splash-dot"></span>
+                <span>लोड हो रहा है... कृपया प्रतीक्षा करें</span>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="./windows/main/index.ts"></script>
+</body>
+
+</html>
