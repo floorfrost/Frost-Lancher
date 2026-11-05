@@ -12,8 +12,8 @@
   <a href="https://floorfrost.xo.je">
     <img src="https://img.shields.io/badge/Official%20Site-floorfrost.xo.je-blue?style=for-the-badge" alt="Official Website">
   </a>
-  <a href="https://github.com/floorfrost/Frost-Lancher/releases/latest">
-    <img src="https://img.shields.io/badge/⬇️%20Download-Windows%20.exe-0078D7?style=for-the-badge&logo=windows&logoColor=white" alt="Direct Download">
+  <a href="https://github.com/floorfrost/Frost-Lancher/releases/download/v0.73.1/Frost-Launcher-Setup-0.73.1.exe">
+    <img src="https://img.shields.io/badge/⬇️%20Direct%20Download-Frost--Launcher--Setup.exe-0078D7?style=for-the-badge&logo=windows&logoColor=white" alt="Direct Download .exe">
   </a>
   <a href="https://www.youtube.com/@FloorFrost">
     <img src="https://img.shields.io/badge/YouTube-Floor%20Frost-red?style=for-the-badge&logo=youtube" alt="YouTube">
@@ -28,15 +28,15 @@
 ## 🚀 Direct Download & Quick Start
 
 <p align="center">
-  <a href="https://github.com/floorfrost/Frost-Lancher/releases/latest">
-    <img src="https://img.shields.io/badge/📥%20Download%20Latest%20Release-Frost%20Launcher-success?style=for-the-badge&logo=windows&logoColor=white" alt="Download Latest Release">
+  <a href="https://github.com/floorfrost/Frost-Lancher/releases/download/v0.73.1/Frost-Launcher-Setup-0.73.1.exe">
+    <img src="https://img.shields.io/badge/📥%20Direct%20Download%20(.exe)-Frost%20Launcher%20v0.73.1-success?style=for-the-badge&logo=windows&logoColor=white" alt="Direct Download .exe">
   </a>
 </p>
 
 ### 🎮 How to Install & Play:
-1. **[Click here to Download Frost Launcher (.exe)](https://github.com/floorfrost/Frost-Lancher/releases/latest)** from the latest release.
-2. Run `Frost Launcher.exe` on your Windows PC.
-3. **Automatic Downloads & Setup**: As soon as you open the launcher, it automatically initializes and starts downloading all required core assets, Java runtime, and launcher dependencies. Everything is configured out of the box!
+1. **[Click here to directly download Frost Launcher (.exe)](https://github.com/floorfrost/Frost-Lancher/releases/download/v0.73.1/Frost-Launcher-Setup-0.73.1.exe)** (or view all versions on the **[Releases Page](https://github.com/floorfrost/Frost-Lancher/releases/latest)**).
+2. Run `Frost-Launcher-Setup-0.73.1.exe` on your Windows PC to install Frost Launcher.
+3. **Automatic Downloads & Setup**: As soon as you open Frost Launcher, it automatically initializes and starts downloading all required core assets, Java runtime, and launcher dependencies. Everything is configured out of the box!
 
 ---
 
