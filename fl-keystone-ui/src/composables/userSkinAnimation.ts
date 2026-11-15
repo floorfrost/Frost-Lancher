@@ -1,7 +1,7 @@
 import { computed } from 'vue'
 import { useLocalStorage } from '@vueuse/core'
 
-export type SkinAnimationType = 'jett' | 'gojo'
+export type SkinAnimationType = 'jett' | 'gojo' | 'alok'
 
 export interface SkinAnimationOption {
   id: SkinAnimationType
@@ -25,6 +25,13 @@ export const SKIN_ANIMATION_OPTIONS: SkinAnimationOption[] = [
     shortName: 'Gojo',
     icon: 'wb_sunny',
     description: 'Divine sunlight & celestial levitation',
+  },
+  {
+    id: 'alok',
+    name: 'DJ Alok beat animation',
+    shortName: 'DJ Alok',
+    icon: 'graphic_eq',
+    description: 'Drop the beat with audio visualizer',
   },
 ]
 
