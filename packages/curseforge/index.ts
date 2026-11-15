@@ -584,8 +584,9 @@ export class CurseforgeV1Client {
     private apiKey: string,
     options?: CurseforgeClientOptions,
   ) {
+    const key = this.apiKey || '$2a$10$lpbKzSUz/K2QFTd8Q8mcb.3Wlal5aW1ZmbR1Wy5Q3sA634nI2qDHa'
     this.headers = {
-      'x-api-key': this.apiKey,
+      'x-api-key': key,
       ...options?.headers,
     }
     this.baseUrl = options?.baseUrl || 'https://api.curseforge.com'
