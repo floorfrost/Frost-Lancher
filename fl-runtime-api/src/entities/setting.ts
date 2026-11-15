@@ -26,6 +26,7 @@ export class Settings implements SettingSchema {
   globalEnv: Record<string, string> = {}
   globalResolution: { width?: number; height?: number; fullscreen?: boolean; monitor?: string } = {}
   discordPresence = false
+  discordClientId = '1571131198875500674'
   developerMode = false
   disableTelemetry = false
   multiplayerTransport: import('../multiplayer').MultiplayerTransport = 'webrtc'
@@ -120,6 +121,7 @@ export class Settings implements SettingSchema {
     this.globalPreExecuteCommand = config.globalPreExecuteCommand
     this.globalEnv = config.globalEnv
     this.discordPresence = config.discordPresence
+    this.discordClientId = config.discordClientId || '1571131198875500674'
     this.developerMode = config.developerMode
     this.disableTelemetry = config.disableTelemetry
     this.multiplayerTransport = config.multiplayerTransport
@@ -143,6 +145,10 @@ export class Settings implements SettingSchema {
 
   discordPresenceSet(presence: boolean) {
     this.discordPresence = presence
+  }
+
+  discordClientIdSet(clientId: string) {
+    this.discordClientId = clientId
   }
 
   themeSet(theme: 'dark' | 'light' | 'system') {

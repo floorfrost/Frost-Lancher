@@ -63,12 +63,22 @@ function onDoubleClick(event: MouseEvent) {
   height: 40px;
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, background-color 0.2s ease;
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
   text-decoration: none;
   color: inherit;
+}
+
+.sidebar-notch-item:hover {
+  transform: scale(1.14) translateY(-2px);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.65), 0 4px 16px rgba(56, 189, 248, 0.40) !important;
+}
+
+.sidebar-notch-item:active {
+  transform: scale(0.92) translateY(0);
+  transition: transform 0.1s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .sidebar-notch-item::before {

@@ -1969,21 +1969,21 @@ setting:
   advancedSettingsHint: 危险区域 - 重置或管理启动器数据
   aiAgentApiKey: AI Agent API Key
   aiAgentApiKeyClear: 清除密钥
-  aiAgentApiKeyDescription: 输入已配置的 OpenAI 兼容 Endpoint 所需的 API Key。密钥按 Endpoint 主机分别保存在本地设备。
-  aiAgentApiKeyEmpty: 粘贴你的 API Key
+  aiAgentApiKeyDescription: 输入 Google Gemini API Key。密钥保存在本地安全存储中。
+  aiAgentApiKeyEmpty: 粘贴你的 Gemini API Key
   aiAgentApiKeyNotNeeded: 无需密钥
   aiAgentApiKeyNotNeededHint: 该服务在本地运行，无需 API Key
   aiAgentApiKeySaved: 已保存
   aiAgentApiKeyStored: 已保存密钥，输入可替换
-  aiAgentApiKeyPlaceholder: OpenAI 或 Claude 服务商 API Key
+  aiAgentApiKeyPlaceholder: Google Gemini API Key (AIzaSy...)
   aiAgentBuiltin: 内置
   aiAgentCustom: 自定义
   aiAgentEndpoint: AI Agent Endpoint
   aiAgentEndpointDescription: 聊天补全（chat completions）的 Endpoint 地址。
-  aiAgentEndpointPlaceholder: https://api.openai.com/v1/chat/completions
-  aiAgentModelPlaceholder: gpt-5.6 或 claude-sonnet-4-5
+  aiAgentEndpointPlaceholder: https://generativelanguage.googleapis.com/v1beta/openai/chat/completions
+  aiAgentModelPlaceholder: FL Agent 或 gemini-2.5-flash
   aiAgentModel: AI Agent 模型
-  aiAgentModelDescription: 请求聊天补全时使用的模型名。
+  aiAgentModelDescription: 请求聊天补全时使用的模型名（默认 FL Agent）。
   apiSets:
     auto: 自动 (根据网络决定)
     official: 官方 (Mojang)

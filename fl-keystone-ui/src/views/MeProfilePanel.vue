@@ -90,6 +90,35 @@
           </div>
         </div>
       </div>
+
+      <!-- Animation selection row -->
+      <div
+        class="animation-row border-t px-3 py-2.5"
+        style="border-color: rgba(var(--v-theme-on-surface), 0.06);"
+      >
+        <div class="text-[10px] font-semibold uppercase tracking-widest opacity-50 mb-1.5 flex items-center justify-between">
+          <span>{{ t('userSkin.stageAnimation', 'Stage Animation') }}</span>
+          <span class="text-primary text-[10px] font-semibold truncate max-w-[150px] text-right">
+            {{ activeAnimationOption.name }}
+          </span>
+        </div>
+        <div class="flex gap-1.5">
+          <button
+            v-for="opt of animationOptions"
+            :key="opt.id"
+            type="button"
+            class="flex-1 py-1.5 px-2 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+            :class="selectedAnimation === opt.id
+              ? 'border-primary bg-primary/15 text-primary shadow-sm shadow-primary/20 font-semibold'
+              : 'border-[rgba(var(--v-theme-on-surface),0.1)] hover:border-[rgba(var(--v-theme-on-surface),0.25)] hover:bg-[rgba(var(--v-theme-on-surface),0.05)] opacity-80'"
+            :title="opt.name"
+            @click="selectedAnimation = opt.id"
+          >
+            <v-icon size="14" :color="selectedAnimation === opt.id ? 'primary' : undefined">{{ opt.icon }}</v-icon>
+            <span class="truncate">{{ opt.shortName }}</span>
+          </button>
+        </div>
+      </div>
     </div>
     <div
       class="friends-section flex-shrink-0 px-3 py-3 flex-grow flex flex-col"
@@ -305,6 +334,7 @@ import { useDialog } from '@/composables/dialog'
 import { kMinecraftFriends } from '@/composables/minecraftFriends'
 import { kUserContext } from '@/composables/user'
 import { UserSkinModel, UserSkinRenderPaused, useUserSkin } from '@/composables/userSkin'
+import { useSkinAnimation } from '@/composables/userSkinAnimation'
 import { vRovingTabindex } from '@/directives/rovingTabindex'
 import { vSharedTooltip } from '@/directives/sharedTooltip'
 import { injection } from '@/util/inject'
@@ -328,6 +358,8 @@ const {
 
 const paused = inject(UserSkinRenderPaused, ref(false))
 
+const { selectedAnimation, activeAnimationOption, options: animationOptions } = useSkinAnimation()
+
 const skinModel = useUserSkin(
   computed(() => userProfile.value.id),
   gameProfile,
@@ -337,6 +369,25 @@ provide(UserSkinModel, skinModel)
 const { canUploadSkin } = skinModel
 
 const isSkinLibraryOpen = ref(false)
+const route = useRoute()
+const router = useRouter()
+
+watch(
+  [() => route.query.wardrobe, () => route.query.skinLibrary, canUploadSkin],
+  ([wardrobe, skinLibrary, canUpload]) => {
+    if ((wardrobe || skinLibrary) && canUpload) {
+      isSkinLibraryOpen.value = true
+    }
+  },
+  { immediate: true },
+)
+
+watch(isSkinLibraryOpen, (open) => {
+  if (!open && (route.query.wardrobe || route.query.skinLibrary)) {
+    const { wardrobe, skinLibrary, ...query } = route.query
+    router.replace({ query })
+  }
+})
 
 const capes = computed(() => gameProfile.value?.capes ?? [])
 const capeScroller = ref<HTMLElement | null>(null)

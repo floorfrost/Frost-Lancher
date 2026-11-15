@@ -86,6 +86,7 @@ interface WindowControllerEventMap {
   maximize: boolean
   minimize: boolean
   navigate: string
+  'in-game-overlay-open': { defaultTab?: 'resourcepacks' | 'shaderpacks' }
 }
 
 export interface MonitorInfo {
@@ -196,4 +197,7 @@ export interface WindowController extends GenericEventEmitter<WindowControllerEv
   }>
 
   setTranslucent(enable: boolean): void
+
+  closeInGameOverlay(): Promise<boolean>
+  setAlwaysOnTop(flag: boolean): Promise<boolean>
 }

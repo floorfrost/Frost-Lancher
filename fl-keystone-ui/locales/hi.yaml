@@ -2251,6 +2251,9 @@ userServices:
     password: कोई पासवर्ड नहीं
     uuid: उपयोगकर्ता UUID (वैकल्पिक)
 userSkin:
+  stageAnimation: स्टेज एनिमेशन
+  animationJett: Jett floating animation
+  animationGojo: Gojo floating animation
   classic: क्लासिक
   import: त्वचा (Skin) आयात करें
   importFile: फ़ाइल से खोलें

@@ -580,8 +580,13 @@ const instanceItems = computed(() => {
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.16);
   box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.45), inset 0 1px 1px 0 rgba(255, 255, 255, 0.22);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: auto; /* Re-enable pointer events ONLY for the container */
+}
+
+.sidebar-notch__container:hover {
+  border-color: rgba(56, 189, 248, 0.85) !important;
+  box-shadow: 0 20px 48px -8px rgba(0, 0, 0, 0.55), 0 0 32px rgba(56, 189, 248, 0.45), 0 0 60px rgba(56, 189, 248, 0.20), inset 0 1px 2px 0 rgba(255, 255, 255, 0.35) !important;
 }
 
 .sidebar-notch--vertical .sidebar-notch__container {

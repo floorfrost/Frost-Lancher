@@ -60,6 +60,15 @@ export function createAgentProtocolHandler(
       }
       request.url = endpoint
       setHeader(request.headers, 'authorization', `Bearer ${provider.apiKey}`)
+      if (endpoint.hostname.includes('googleapis.com') && typeof request.body === 'string' && request.body.includes('"store"')) {
+        try {
+          const parsed = JSON.parse(request.body)
+          if ('store' in parsed) {
+            delete parsed.store
+            request.body = JSON.stringify(parsed)
+          }
+        } catch { }
+      }
       request.skipRemainingHandlers = true
       return
     }

@@ -111,13 +111,17 @@ const targetConfigured = computed(() => target === 'local' || !!instance.value.r
 
 function defaultServiceName() {
   const slug = instance.value.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
-  return `xmcl-${slug || 'server'}`
+  return `fl-${slug || 'server'}`
 }
 
 function syncDesiredService() {
   const desired = instance.value.serverConfig?.service
   enabled.value = desired?.enabled ?? false
-  serviceName.value = desired?.name || instance.value.remoteServer?.serviceName || defaultServiceName()
+  let name = desired?.name || instance.value.remoteServer?.serviceName || defaultServiceName()
+  if (name.startsWith('xmcl-')) {
+    name = name.replace(/^xmcl-/, 'fl-')
+  }
+  serviceName.value = name
   startCommand.value = desired?.startCommand || instance.value.remoteServer?.startCommand || '/bin/sh server.sh'
 }
 

@@ -147,10 +147,10 @@
         <template #title>
           <v-icon start size="small" color="primary">key</v-icon>
           {{ t('setting.aiAgentApiKey') }}
-          <v-chip v-if="agentProviderMode === 'builtin'" size="x-small" class="ml-2">
-            {{ t('setting.aiAgentBuiltin') }}
+          <v-chip size="x-small" color="primary" class="ml-2">
+            Google Gemini
           </v-chip>
-          <v-chip v-else-if="agentConfigured" size="x-small" color="success" class="ml-2">
+          <v-chip v-if="agentConfigured" size="x-small" color="success" class="ml-2">
             <v-icon start size="x-small">check_circle</v-icon>
             {{ t('setting.aiAgentApiKeySaved') }}
           </v-chip>
@@ -164,11 +164,10 @@
             density="compact"
             class="setting-item-input"
             hide-details="auto"
-            :disabled="agentProviderMode === 'builtin'"
             :error-messages="agentSettingsError"
-            :placeholder="agentConfigured ? t('setting.aiAgentApiKeyStored') : t('setting.aiAgentApiKeyEmpty')"
+            :placeholder="agentConfigured ? t('setting.aiAgentApiKeyStored') : 'Google Gemini API Key'"
             :loading="clearingAgentKey"
-            @update:model-value="updateAgentApiKey($event ?? '')"
+            @update:model-value="onUpdateAgentApiKey($event ?? '')"
           >
             <template #append-inner>
               <!-- The stored key is never read back, so the toggle only has
@@ -180,7 +179,7 @@
                    appears while the field holds text and so could never reach a
                    saved key (the field is empty once the key is stored). -->
               <v-btn
-                v-if="agentProviderMode === 'custom' && (agentApiKey || agentConfigured)"
+                v-if="agentApiKey || agentConfigured"
                 data-testid="agent-api-key-clear"
                 icon
                 variant="text"
@@ -210,26 +209,7 @@
             density="compact"
             class="setting-item-input"
             hide-details
-            :placeholder="agentProviderMode === 'custom' ? t('setting.aiAgentModelPlaceholder') : agentResolvedModel"
-          />
-        </template>
-    </SettingItem>
-
-    <v-divider class="my-3" />
-
-    <SettingItem :title="t('setting.aiAgentEndpoint')" :description="t('setting.aiAgentEndpointDescription')">
-        <template #title>
-          <v-icon start size="small" color="primary">link</v-icon>
-          {{ t('setting.aiAgentEndpoint') }}
-        </template>
-        <template #action>
-          <v-text-field
-            v-model="agentEndpoint"
-            variant="outlined"
-            density="compact"
-            class="setting-item-input"
-            hide-details
-            :placeholder="agentProviderMode === 'custom' ? t('setting.aiAgentEndpointPlaceholder') : agentResolvedEndpoint"
+            placeholder="Frost Agent"
           />
         </template>
     </SettingItem>
@@ -247,6 +227,7 @@ import { useGetDataDirErrorText } from '@/composables/dataRootErrors'
 import { kEnvironment } from '@/composables/environment'
 import { injection } from '@/util/inject'
 import { formatShortcutDisplay } from '@/util/shortcut'
+import { BUILTIN_AGENT_ENDPOINT, BUILTIN_AGENT_MODEL } from '@xmcl/runtime-api'
 import { useDialog } from '../composables/dialog'
 import { useAgentSettings } from '../composables/agent/settings'
 import { useGameDirectory, useSettings } from '../composables/setting'
@@ -310,6 +291,22 @@ const showAgentApiKey = ref(false)
 watch(agentApiKey, value => {
   if (!value) showAgentApiKey.value = false
 })
+
+watch(agentEndpoint, val => {
+  if (!val) {
+    agentEndpoint.value = BUILTIN_AGENT_ENDPOINT
+  }
+}, { immediate: true })
+
+function onUpdateAgentApiKey(val: string) {
+  if (!agentEndpoint.value) {
+    agentEndpoint.value = BUILTIN_AGENT_ENDPOINT
+  }
+  if (!agentModel.value) {
+    agentModel.value = BUILTIN_AGENT_MODEL
+  }
+  updateAgentApiKey(val)
+}
 
 const clearingAgentKey = ref(false)
 /** Clear the field and forget whatever key is stored for the current provider. */

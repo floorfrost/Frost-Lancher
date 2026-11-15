@@ -1,6 +1,8 @@
 import {
   AGENT_MODEL_CONTEXT_WINDOW,
   AGENT_MODEL_MAX_TOKENS,
+  BUILTIN_AGENT_ENDPOINT,
+  BUILTIN_AGENT_PROVIDER_ID,
   normalizeAgentBaseUrl,
   resolveAgentProviderId,
   type AgentMessage,
@@ -141,9 +143,34 @@ export function toPiMessage(message: AgentMessage, provider: string, model: stri
 }
 
 export function createAgentModel(endpoint: string, modelId: string): Model<'openai-completions'> {
+  const isGoogle = !endpoint ||
+    endpoint === BUILTIN_AGENT_ENDPOINT ||
+    resolveAgentProviderId(endpoint) === BUILTIN_AGENT_PROVIDER_ID ||
+    endpoint.includes('generativelanguage.googleapis.com')
+
+  let actualModel = modelId?.trim() || ''
+
+  if (isGoogle) {
+    // If it's empty, a friendly nickname like 'FL Agent', 'Frost Agent', 'Frost bhai', etc.,
+    // or a deprecated gemini model (e.g. gemini-2.5-flash, gemini-2.0-flash, gemini-1.5-flash),
+    // map it to the active working gemini-3.5-flash model.
+    const isDeprecatedOrNickname = !actualModel ||
+      (!actualModel.startsWith('gemini-') && !actualModel.startsWith('gemma-')) ||
+      actualModel === 'gemini-2.5-flash' ||
+      actualModel === 'gemini-2.0-flash' ||
+      actualModel === 'gemini-1.5-flash' ||
+      actualModel === 'gemini-2.5-flash-lite'
+
+    if (isDeprecatedOrNickname) {
+      actualModel = 'gemini-3.5-flash'
+    }
+  } else if (!actualModel) {
+    actualModel = 'gpt-4o-mini'
+  }
+
   return {
-    id: modelId,
-    name: modelId,
+    id: actualModel,
+    name: modelId || actualModel,
     api: 'openai-completions',
     provider: resolveAgentProviderId(endpoint),
     baseUrl: normalizeAgentBaseUrl(endpoint),
@@ -152,5 +179,11 @@ export function createAgentModel(endpoint: string, modelId: string): Model<'open
     cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
     contextWindow: AGENT_MODEL_CONTEXT_WINDOW,
     maxTokens: AGENT_MODEL_MAX_TOKENS,
+    compat: isGoogle ? {
+      supportsStore: false,
+      supportsDeveloperRole: false,
+      supportsReasoningEffort: false,
+      supportsStrictMode: false,
+    } : undefined,
   }
 }

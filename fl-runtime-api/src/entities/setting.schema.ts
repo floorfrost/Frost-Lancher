@@ -87,6 +87,8 @@ export const SettingSchema = z.object({
   globalEnv: z.record(z.string(), z.string()).catch({}),
   /** Discord presence setting */
   discordPresence: z.boolean().catch(true),
+  /** Discord application client ID */
+  discordClientId: z.string().catch('1571131198875500674'),
   /** Developer mode setting */
   developerMode: z.boolean().catch(false),
   /** Disable telemetry setting */

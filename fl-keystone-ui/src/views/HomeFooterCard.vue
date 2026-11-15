@@ -750,13 +750,41 @@ transition: all 0.2s ease-in-out;
 .tabs-card {
   max-width: 380px;
   min-width: 320px;
-  background: rgba(15, 23, 42, 0.55) !important;
+  background: rgba(15, 23, 42, 0.58) !important;
   backdrop-filter: blur(28px) saturate(190%) !important;
   -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border: 1px solid rgba(56, 189, 248, 0.25) !important;
   border-radius: 18px !important;
-  box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.5), inset 0 1px 1px 0 rgba(255, 255, 255, 0.22) !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.5), 0 0 16px rgba(56, 189, 248, 0.12), inset 0 1px 1px 0 rgba(255, 255, 255, 0.22) !important;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.28s ease !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.tabs-card::after {
+  content: '';
+  position: absolute;
+  top: -60%;
+  left: -70%;
+  width: 50%;
+  height: 220%;
+  background: linear-gradient(65deg, transparent 0%, rgba(255, 255, 255, 0.16) 45%, rgba(56, 189, 248, 0.24) 50%, transparent 100%);
+  transform: rotate(25deg);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.tabs-card:hover::after {
+  opacity: 1;
+  left: 150%;
+  transition: left 0.75s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.15s ease;
+}
+
+.tabs-card:hover {
+  transform: translateY(-4px) scale(1.008) !important;
+  border-color: rgba(56, 189, 248, 0.90) !important;
+  box-shadow: 0 20px 48px -4px rgba(0, 0, 0, 0.60), 0 0 36px rgba(56, 189, 248, 0.55), 0 0 64px rgba(56, 189, 248, 0.25), inset 0 1px 2px 0 rgba(255, 255, 255, 0.4), inset 0 0 20px rgba(56, 189, 248, 0.16) !important;
 }
 
 .tabs-card>.icons, .tabs-card>.tabs-items {

@@ -61,7 +61,7 @@ export function createAgentSettings(service: AgentService, xmclAccountService: X
     try {
       const settings = await service.getProviderSettings()
       endpoint.value = settings.endpoint
-      model.value = settings.model
+      model.value = (!settings.model || settings.model === 'xmcl-agent') ? 'Frost Agent' : settings.model
       providerConfigured.value = settings.configured
       resolvedMode.value = settings.mode
       if (settings.mode === 'builtin' && settings.configured) {
@@ -91,7 +91,7 @@ export function createAgentSettings(service: AgentService, xmclAccountService: X
   function saveProviderSettings() {
     // Capture all fields before joining the queue, never after an IPC await.
     const target = endpoint.value.trim()
-    const targetModel = model.value
+    const targetModel = model.value.trim()
     const key = pendingKey
     const token = revision
     if (key && key.endpoint === undefined && target) {
@@ -174,7 +174,11 @@ export function createAgentSettings(service: AgentService, xmclAccountService: X
   }
 
   const resolvedEndpoint = computed(() => endpoint.value.trim() || BUILTIN_AGENT_ENDPOINT)
-  const resolvedModel = computed(() => model.value.trim() || BUILTIN_AGENT_MODEL)
+  const resolvedModel = computed(() => {
+    const m = model.value.trim()
+    if (!m || m === 'xmcl-agent') return BUILTIN_AGENT_MODEL
+    return m
+  })
   const configured = computed(() => {
     if (checkingAccess.value) return false
     if (mode.value !== 'builtin') return providerConfigured.value

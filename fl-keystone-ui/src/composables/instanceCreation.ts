@@ -7,6 +7,7 @@ import {
 } from '@/util/instanceName'
 import {
   InstanceInstallServiceKey,
+  InstanceModsServiceKey,
   InstanceOptionsServiceKey,
   InstanceResourcePacksServiceKey,
   InstanceSavesServiceKey,
@@ -15,6 +16,7 @@ import {
   InstanceShaderPacksServiceKey,
   VersionMetadataServiceKey,
 } from '@xmcl/runtime-api'
+import { applyInstanceOptimizationProfile, type PerformanceProfile } from './instanceOptimization'
 import type { GameProfile } from '@xmcl/user'
 import { useLocalStorage } from '@vueuse/core'
 import { InjectionKey, Ref, reactive } from 'vue'
@@ -117,7 +119,10 @@ export function useInstanceCreation(gameProfile: Ref<GameProfile>, instances: Re
   const { linkSharedSave } = useService(InstanceSavesServiceKey)
   const { linkShared: linkSharedResourcePacks } = useService(InstanceResourcePacksServiceKey)
   const { linkShared: linkSharedShaderPacks } = useService(InstanceShaderPacksServiceKey)
-  const { linkGameOptions } = useService(InstanceOptionsServiceKey)
+  const { linkGameOptions, editGameSetting } = useService(InstanceOptionsServiceKey)
+  const { installFromMarket } = useService(InstanceModsServiceKey)
+  const performanceProfile = ref<PerformanceProfile>('performance')
+  const selectedOptimizationMods = ref<string[]>(['sodium', 'iris', 'lithium', 'ferrite-core', 'immediatelyfast', 'entityculling'])
   const { link: linkServersList } = useService(InstanceServerInfoServiceKey)
   const { notify } = useNotifier()
   const { t } = useI18n()
@@ -267,6 +272,7 @@ export function useInstanceCreation(gameProfile: Ref<GameProfile>, instances: Re
     filesResolved.value = true
     loading.value = false
     isManual.value = true
+    performanceProfile.value = 'performance'
   }
   return {
     data,
@@ -275,6 +281,8 @@ export function useInstanceCreation(gameProfile: Ref<GameProfile>, instances: Re
     error,
     placeHolderName,
     linkPreferences,
+    performanceProfile,
+    selectedOptimizationMods,
     isManual,
     canCreate,
     prepareImport,
@@ -381,6 +389,14 @@ export function useInstanceCreation(gameProfile: Ref<GameProfile>, instances: Re
               for (const folder of failed) {
                 notify({ level: 'error', title: t('instances.linkFailed', { folder }) })
               }
+            }
+            // Manual-create only: apply Performance, Quality, or Balanced profile
+            if (isManual.value && data.edition !== 'bedrock') {
+              await applyInstanceOptimizationProfile({
+                instancePath: newPath,
+                profile: performanceProfile.value,
+                editGameSetting,
+              }).catch(() => {})
             }
             reset()
             return newPath

@@ -163,6 +163,14 @@ const { t } = useI18n()
   border-radius: 12px;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.frost-card-item:hover {
+  border-color: rgba(56, 189, 248, 0.85) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), 0 0 24px rgba(56, 189, 248, 0.50), inset 0 0 12px rgba(56, 189, 248, 0.18) !important;
+  background: rgba(255, 255, 255, 0.14) !important;
+  transform: translateY(-2px);
 }
 
 .frost-card-item__icon-box {

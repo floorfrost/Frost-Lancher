@@ -2117,21 +2117,21 @@ setting:
   advancedSettingsHint: Danger zone - reset or manage launcher data
   aiAgentApiKey: AI Agent API Key
   aiAgentApiKeyClear: Clear key
-  aiAgentApiKeyDescription: Enter the key for the configured OpenAI-compatible endpoint. Keys are stored locally per endpoint host.
   aiAgentApiKeyEmpty: Paste your API key
   aiAgentApiKeyNotNeeded: Not required
   aiAgentApiKeyNotNeededHint: This provider runs locally and needs no API key
   aiAgentApiKeySaved: Saved
   aiAgentApiKeyStored: Key saved - type to replace
-  aiAgentApiKeyPlaceholder: OpenAI or Claude provider API key
+  aiAgentApiKeyPlaceholder: Google Gemini API key (AIzaSy...)
+  aiAgentApiKeyDescription: API key for Google Gemini AI provider.
   aiAgentBuiltin: Built-in
   aiAgentCustom: Custom
   aiAgentEndpoint: AI Agent Endpoint
   aiAgentEndpointDescription: Chat completions endpoint URL.
-  aiAgentEndpointPlaceholder: https://api.openai.com/v1/chat/completions
-  aiAgentModelPlaceholder: gpt-5.6 or claude-sonnet-4-5
+  aiAgentEndpointPlaceholder: https://generativelanguage.googleapis.com/v1beta/openai/chat/completions
+  aiAgentModelPlaceholder: Frost Agent
   aiAgentModel: AI Agent Model
-  aiAgentModelDescription: Model name to send in chat completion requests.
+  aiAgentModelDescription: 'Model name for AI Agent (default: Frost Agent).'
   apiSets:
     auto: Auto (Determine by network)
     official: Official (Mojang)
@@ -2668,6 +2668,9 @@ userServices:
     password: No Password
     uuid: User UUID (Optional)
 userSkin:
+  stageAnimation: Stage Animation
+  animationJett: Jett floating animation
+  animationGojo: Gojo floating animation
   classic: Classic
   import: Import Skin
   importFile: Open from File

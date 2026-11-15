@@ -5,7 +5,7 @@
   >
     <router-view v-slot="{ Component }">
       <Transition
-        name="slide-y-transition"
+        name="frost-page-zoom"
         mode="out-in"
         @after-enter="end"
         @leave="start"

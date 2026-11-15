@@ -221,6 +221,10 @@ export function useSettings() {
     get: () => state.value?.discordPresence ?? false,
     set: (v) => state.value?.discordPresenceSet(v),
   })
+  const discordClientId = computed({
+    get: () => state.value?.discordClientId ?? '',
+    set: (v) => state.value?.discordClientIdSet(v),
+  })
   const apiSets = computed(() => state.value?.apiSets || [])
 
   onMounted(() => {
@@ -260,6 +264,7 @@ export function useSettings() {
     developerMode,
     httpProxyEnabled,
     enableDiscord,
+    discordClientId,
     quickActionShortcut,
     maxSockets,
     maxAPISockets,

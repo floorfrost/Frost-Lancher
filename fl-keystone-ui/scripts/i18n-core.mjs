@@ -5,7 +5,7 @@
  * Pure(ish) helpers: locale loading, source scanning, lint computation, and
  * surgical line-based key removal / renaming. No side effects on import.
  */
-import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, extname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { baseCompile } from '@intlify/message-compiler'
@@ -25,7 +25,9 @@ export const REPO_ROOT = resolve(UI_ROOT, '..')
 // ---------------------------------------------------------------------------
 export const LOCALES_DIR = join(UI_ROOT, 'locales')
 export const SRC_DIR = join(UI_ROOT, 'src')
-export const MAIN_SRC_DIR = join(REPO_ROOT, 'xmcl-electron-app', 'main')
+export const MAIN_SRC_DIR = existsSync(join(REPO_ROOT, 'fl-electron-app', 'main'))
+  ? join(REPO_ROOT, 'fl-electron-app', 'main')
+  : join(REPO_ROOT, 'xmcl-electron-app', 'main')
 export const MAIN_LOCALES_DIR = join(MAIN_SRC_DIR, 'locales')
 export const MAIN_DEFINED_LOCALES_FILE = join(MAIN_SRC_DIR, 'definedLocales.ts')
 export const SETTINGS_FILE = join(REPO_ROOT, '.vscode', 'settings.json')

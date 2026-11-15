@@ -11,14 +11,17 @@
 
       <div class="relative z-1 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <div class="flex items-center gap-2.5 mb-1.5 flex-wrap">
-            <v-icon color="#38bdf8" size="30">dns</v-icon>
-            <h1 class="text-2xl font-black tracking-wide text-white drop-shadow">
+          <div class="flex items-center gap-3 mb-2 flex-wrap">
+            <div class="frost-server-icon-wrap flex items-center justify-center w-11 h-11 rounded-xl bg-cyan-500/20 border border-cyan-400/40 shadow-lg shadow-cyan-500/30 text-cyan-300">
+              <v-icon size="26">dns</v-icon>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-100 to-cyan-400 drop-shadow-md">
               {{ t('servers.title') }}
             </h1>
-            <v-chip size="x-small" color="primary" variant="flat" class="font-bold uppercase tracking-wider ml-1">
-              Multiplayer
-            </v-chip>
+            <span class="frost-live-badge inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 shadow-sm shadow-cyan-500/20">
+              <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+              Multiplayer Network
+            </span>
 
             <!-- Active Instance Pill -->
             <v-chip
@@ -45,7 +48,7 @@
               {{ t('servers.noInstanceSelected', 'No profile selected (Click to choose)') }}
             </v-chip>
           </div>
-          <p class="text-sm text-gray-300 max-w-2xl leading-relaxed">
+          <p class="text-sm text-cyan-100/75 max-w-2xl leading-relaxed font-medium">
             {{ t('servers.subtitle') }}
           </p>
         </div>
@@ -53,13 +56,14 @@
         <!-- Header Action Controls -->
         <div class="flex items-center gap-3 flex-wrap">
           <!-- View mode toggle -->
-          <div class="bg-black/30 rounded-xl p-0.5 border border-white/10 flex items-center">
+          <div class="bg-black/40 rounded-xl p-1 border border-white/12 flex items-center shadow-inner">
             <v-btn
               icon
               size="small"
               :variant="viewMode === 'grid' ? 'flat' : 'text'"
               :color="viewMode === 'grid' ? 'primary' : 'default'"
               rounded="lg"
+              class="transition-all"
               v-shared-tooltip="t('servers.gridView', 'Grid View')"
               @click="viewMode = 'grid'"
             >
@@ -71,6 +75,7 @@
               :variant="viewMode === 'list' ? 'flat' : 'text'"
               :color="viewMode === 'list' ? 'primary' : 'default'"
               rounded="lg"
+              class="transition-all"
               v-shared-tooltip="t('servers.listView', 'List View')"
               @click="viewMode = 'list'"
             >
@@ -85,6 +90,7 @@
             rounded="xl"
             prepend-icon="refresh"
             :loading="isRefreshingAll"
+            class="font-semibold border border-cyan-500/30"
             @click="pingAllServers(true)"
           >
             {{ t('servers.refreshAll') }}
@@ -97,7 +103,7 @@
             variant="flat"
             rounded="xl"
             prepend-icon="add_circle"
-            class="shadow-lg shadow-cyan-500/25 font-bold"
+            class="shadow-lg shadow-cyan-500/30 font-bold btn-play-frost"
             @click="openAddDialog"
           >
             {{ t('servers.addCustomServer', 'Add Custom Server') }}
@@ -106,87 +112,87 @@
       </div>
 
       <!-- Quick Metrics Ribbon -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 mt-5 pt-4 border-t border-white/10">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-6 pt-5 border-t border-white/10">
         <!-- Total Servers -->
-        <div class="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/5 backdrop-blur-sm transition-all hover:bg-white/10">
-          <div class="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400">
-            <v-icon size="18">dns</v-icon>
+        <div class="frost-metric-tile flex items-center gap-2.5 p-2.5">
+          <div class="w-9 h-9 rounded-xl bg-cyan-500/15 border border-cyan-400/20 flex items-center justify-center text-cyan-300 shadow-sm">
+            <v-icon size="20">dns</v-icon>
           </div>
           <div class="flex flex-col min-w-0">
-            <span class="text-[11px] text-gray-400 truncate">Total Servers</span>
-            <span class="text-sm font-bold text-white">{{ allServers.length }}</span>
+            <span class="text-[11px] text-gray-300/80 font-medium truncate">Total Servers</span>
+            <span class="text-base font-extrabold text-white tracking-wide">{{ allServers.length }}</span>
           </div>
         </div>
 
         <!-- Indian Servers Metric -->
         <div
-          class="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/5 backdrop-blur-sm transition-all hover:bg-orange-500/15 cursor-pointer"
-          :class="{ 'border-orange-500/50 bg-orange-950/20': activeCategory === 'india' }"
+          class="frost-metric-tile flex items-center gap-2.5 p-2.5 cursor-pointer"
+          :class="{ 'border-orange-500/60 bg-orange-950/30 shadow-md shadow-orange-500/20': activeCategory === 'india' }"
           @click="activeCategory = 'india'"
         >
-          <div class="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center text-base">
+          <div class="w-9 h-9 rounded-xl bg-orange-500/15 border border-orange-400/25 flex items-center justify-center text-lg shadow-sm">
             <span>🇮🇳</span>
           </div>
           <div class="flex flex-col min-w-0">
-            <span class="text-[11px] text-gray-400 truncate">Indian Servers</span>
-            <span class="text-sm font-bold text-orange-400">{{ indianServersCount }}</span>
+            <span class="text-[11px] text-orange-200/85 font-medium truncate">Indian Hub</span>
+            <span class="text-base font-extrabold text-orange-400 tracking-wide">{{ indianServersCount }}</span>
           </div>
         </div>
 
         <!-- Cracked & Free Metric -->
         <div
-          class="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/5 backdrop-blur-sm transition-all hover:bg-emerald-500/15 cursor-pointer"
-          :class="{ 'border-emerald-500/50 bg-emerald-950/20': accountFilter === 'cracked' }"
+          class="frost-metric-tile flex items-center gap-2.5 p-2.5 cursor-pointer"
+          :class="{ 'border-emerald-500/60 bg-emerald-950/30 shadow-md shadow-emerald-500/20': accountFilter === 'cracked' }"
           @click="accountFilter = accountFilter === 'cracked' ? 'all' : 'cracked'"
         >
-          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
-            <v-icon size="18">lock_open</v-icon>
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-400/25 flex items-center justify-center text-emerald-300 shadow-sm">
+            <v-icon size="20">lock_open</v-icon>
           </div>
           <div class="flex flex-col min-w-0">
-            <span class="text-[11px] text-gray-400 truncate">Cracked & Free</span>
-            <span class="text-sm font-bold text-emerald-400">{{ crackedServersCount }}</span>
+            <span class="text-[11px] text-emerald-200/85 font-medium truncate">Cracked & Free</span>
+            <span class="text-base font-extrabold text-emerald-400 tracking-wide">{{ crackedServersCount }}</span>
           </div>
         </div>
 
         <!-- Online Players -->
-        <div class="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/5 backdrop-blur-sm transition-all hover:bg-white/10">
-          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 relative">
-            <v-icon size="18">group</v-icon>
-            <span class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+        <div class="frost-metric-tile flex items-center gap-2.5 p-2.5">
+          <div class="w-9 h-9 rounded-xl bg-cyan-500/15 border border-cyan-400/25 flex items-center justify-center text-cyan-300 relative shadow-sm">
+            <v-icon size="20">group</v-icon>
+            <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
           </div>
           <div class="flex flex-col min-w-0">
-            <span class="text-[11px] text-gray-400 truncate">Online Players</span>
-            <span class="text-sm font-bold text-emerald-400">{{ formatNumber(totalOnlinePlayers) }}</span>
+            <span class="text-[11px] text-cyan-200/85 font-medium truncate">Online Players</span>
+            <span class="text-base font-extrabold text-cyan-300 tracking-wide">{{ formatNumber(totalOnlinePlayers) }}</span>
           </div>
         </div>
 
         <!-- My Added Servers -->
         <div
-          class="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/5 backdrop-blur-sm transition-all hover:bg-purple-500/15 cursor-pointer"
-          :class="{ 'border-purple-500/50 bg-purple-950/20': activeCategory === 'custom' }"
+          class="frost-metric-tile flex items-center gap-2.5 p-2.5 cursor-pointer"
+          :class="{ 'border-purple-500/60 bg-purple-950/30 shadow-md shadow-purple-500/20': activeCategory === 'custom' }"
           @click="activeCategory = 'custom'"
         >
-          <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400">
-            <v-icon size="18">bookmark</v-icon>
+          <div class="w-9 h-9 rounded-xl bg-purple-500/15 border border-purple-400/25 flex items-center justify-center text-purple-300 shadow-sm">
+            <v-icon size="20">bookmark</v-icon>
           </div>
           <div class="flex flex-col min-w-0">
-            <span class="text-[11px] text-gray-400 truncate">My Added</span>
-            <span class="text-sm font-bold text-purple-400">{{ customServers.length }}</span>
+            <span class="text-[11px] text-purple-200/85 font-medium truncate">My Added</span>
+            <span class="text-base font-extrabold text-purple-400 tracking-wide">{{ customServers.length }}</span>
           </div>
         </div>
 
         <!-- Favorites -->
         <div
-          class="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/5 backdrop-blur-sm transition-all hover:bg-amber-500/15 cursor-pointer"
-          :class="{ 'border-amber-500/50 bg-amber-950/20': activeCategory === 'favorites' }"
+          class="frost-metric-tile flex items-center gap-2.5 p-2.5 cursor-pointer"
+          :class="{ 'border-amber-500/60 bg-amber-950/30 shadow-md shadow-amber-500/20': activeCategory === 'favorites' }"
           @click="activeCategory = 'favorites'"
         >
-          <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
-            <v-icon size="18">star</v-icon>
+          <div class="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-400/25 flex items-center justify-center text-amber-300 shadow-sm">
+            <v-icon size="20">star</v-icon>
           </div>
           <div class="flex flex-col min-w-0">
-            <span class="text-[11px] text-gray-400 truncate">Favorites</span>
-            <span class="text-sm font-bold text-amber-400">{{ favoriteServerIds.length }}</span>
+            <span class="text-[11px] text-amber-200/85 font-medium truncate">Favorites</span>
+            <span class="text-base font-extrabold text-amber-400 tracking-wide">{{ favoriteServerIds.length }}</span>
           </div>
         </div>
       </div>
@@ -313,7 +319,8 @@
           :variant="activeCategory === cat.id ? 'flat' : 'tonal'"
           rounded="lg"
           size="small"
-          class="cursor-pointer transition-all font-medium flex-shrink-0"
+          class="frost-category-chip cursor-pointer font-bold px-3 py-1 flex-shrink-0"
+          :class="{ 'active-chip': activeCategory === cat.id }"
           @click="activeCategory = cat.id"
         >
           <span v-if="cat.flag" class="mr-1.5 text-xs">{{ cat.flag }}</span>
@@ -321,19 +328,19 @@
           {{ cat.label }}
           <span
             v-if="cat.id === 'india' && indianServersCount > 0"
-            class="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-white/20"
+            class="ml-1.5 px-1.5 py-0.2 rounded-full text-[10px] bg-white/25 font-bold"
           >
             {{ indianServersCount }}
           </span>
           <span
             v-else-if="cat.id === 'favorites' && favoriteServerIds.length > 0"
-            class="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-white/20"
+            class="ml-1.5 px-1.5 py-0.2 rounded-full text-[10px] bg-white/25 font-bold"
           >
             {{ favoriteServerIds.length }}
           </span>
           <span
             v-else-if="cat.id === 'custom' && customServers.length > 0"
-            class="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-white/20"
+            class="ml-1.5 px-1.5 py-0.2 rounded-full text-[10px] bg-white/25 font-bold"
           >
             {{ customServers.length }}
           </span>
@@ -350,25 +357,25 @@
       <div
         v-if="activeCategory === 'all' || activeCategory === 'custom'"
         data-testid="server-add-custom-card"
-        class="server-card add-custom-card-animated animated-card flex flex-col items-center justify-center p-6 rounded-xl border-2 border-dashed border-cyan-500/50 hover:border-cyan-400 bg-slate-900/60 hover:bg-slate-900/90 transition-all duration-200 cursor-pointer text-center group min-h-[220px] shadow-lg shadow-cyan-500/10 hover:shadow-cyan-500/25 backdrop-blur-sm"
+        class="server-card add-custom-card-animated animated-card flex flex-col items-center justify-center p-6 text-center group min-h-[240px] cursor-pointer"
         @click="openAddDialog"
       >
-        <div class="float-icon w-14 h-14 rounded-2xl bg-cyan-500/15 group-hover:bg-cyan-500/25 group-hover:scale-110 flex items-center justify-center text-cyan-400 transition-all mb-3 border border-cyan-500/30 shadow-md shadow-cyan-500/10">
-          <v-icon size="32">add</v-icon>
+        <div class="float-icon w-16 h-16 rounded-2xl bg-cyan-500/20 group-hover:bg-cyan-500/30 group-hover:scale-110 flex items-center justify-center text-cyan-300 transition-all mb-3 border border-cyan-400/40 shadow-lg shadow-cyan-500/20">
+          <v-icon size="36">add</v-icon>
         </div>
-        <h3 class="font-bold text-base text-white group-hover:text-cyan-300 transition-colors">
+        <h3 class="font-extrabold text-lg text-white group-hover:text-cyan-300 transition-colors tracking-wide">
           {{ t('servers.addCustomServer', 'Add Your Own Server') }}
         </h3>
-        <p class="text-xs text-gray-300 max-w-xs mt-1.5 leading-relaxed">
+        <p class="text-xs text-cyan-100/75 max-w-xs mt-1.5 leading-relaxed font-medium">
           {{ t('servers.addCustomServerDesc', 'Add your private SMP, Aternos, local LAN, or friend\'s server and play directly!') }}
         </p>
-        <div class="flex items-center gap-2 mt-4">
+        <div class="flex items-center gap-2.5 mt-5">
           <v-btn
             color="primary"
             variant="flat"
             size="small"
             rounded="lg"
-            class="font-bold shadow-md shadow-cyan-500/20 btn-play-shine"
+            class="font-bold shadow-md shadow-cyan-500/30 btn-play-frost"
             prepend-icon="add"
             @click.stop="openAddDialog"
           >
@@ -379,10 +386,11 @@
             variant="tonal"
             size="small"
             rounded="lg"
+            class="font-semibold text-xs border border-white/10"
             prepend-icon="file_download"
             @click.stop="importServersFromProfile"
           >
-            Import
+            Import ({{ instanceServers.length }})
           </v-btn>
         </div>
       </div>
@@ -392,8 +400,8 @@
         v-for="(server, index) in filteredServers"
         :key="server.id"
         data-testid="server-card"
-        class="server-card server-card-interactive animated-card group relative flex flex-col justify-between p-4 rounded-xl border border-white/10 bg-slate-900/60 hover:bg-slate-800/80 hover:border-cyan-500/40 transition-all duration-200 shadow-md hover:shadow-cyan-500/10 backdrop-blur-sm"
-        :class="{ 'border-purple-500/40 bg-purple-950/25 hover:border-purple-500/70': server.custom }"
+        class="server-card server-card-interactive animated-card group relative flex flex-col justify-between p-4.5"
+        :class="{ 'custom-card': server.custom }"
         :style="{ animationDelay: `${Math.min(index * 35, 350)}ms` }"
       >
         <!-- Card Top: Favicon, Name, Tags, Ping -->
@@ -401,17 +409,17 @@
           <div class="flex items-start gap-3">
             <!-- Server Favicon with Pulsing Status Indicator -->
             <div
-              class="relative w-12 h-12 rounded-xl overflow-hidden bg-black/40 flex-shrink-0 border border-white/10 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
+              class="relative server-favicon-box flex-shrink-0 flex items-center justify-center cursor-pointer overflow-hidden"
               @click="openServerDetails(server)"
             >
               <img
                 v-if="getServerStatus(server).favicon"
                 :src="getServerStatus(server).favicon"
                 :alt="server.name"
-                class="w-full h-full object-cover"
+                class="w-full h-full object-cover rounded-[13px]"
                 style="image-rendering: pixelated;"
               />
-              <v-icon v-else size="26" :color="server.custom ? '#c084fc' : '#38bdf8'">dns</v-icon>
+              <v-icon v-else size="28" :color="server.custom ? '#c084fc' : '#38bdf8'">dns</v-icon>
 
               <!-- Ping state dot with ripple animation -->
               <div class="absolute bottom-1 right-1 w-2.5 h-2.5 flex items-center justify-center pointer-events-none">
@@ -556,57 +564,57 @@
           </div>
 
           <!-- Players & Version Bar with Capacity Gauge -->
-          <div class="mt-3 px-2.5 py-1.5 rounded-lg bg-black/25 border border-white/5 flex flex-col gap-1.5">
+          <div class="mt-3 px-3 py-2 rounded-xl bg-black/40 border border-white/8 flex flex-col gap-1.5 shadow-inner">
             <div class="flex items-center justify-between text-xs">
               <div class="flex items-center gap-1.5 text-gray-300">
-                <v-icon size="13" color="#38bdf8">group</v-icon>
+                <v-icon size="14" color="#38bdf8">group</v-icon>
                 <span v-if="getServerStatus(server).players.online >= 0" class="font-medium">
-                  <span class="text-white font-bold">{{ formatNumber(getServerStatus(server).players.online) }}</span>
+                  <span class="text-white font-bold text-sm">{{ formatNumber(getServerStatus(server).players.online) }}</span>
                   <span class="text-gray-400"> / {{ formatNumber(getServerStatus(server).players.max) }}</span>
                 </span>
-                <span v-else class="text-gray-500">
+                <span v-else class="text-gray-500 font-medium">
                   Players: --
                 </span>
               </div>
 
               <div class="flex items-center gap-1 text-gray-400">
                 <v-icon size="12">tag</v-icon>
-                <span class="truncate max-w-[130px]">{{ server.version || getServerStatus(server).versionName || '1.8 - 1.21' }}</span>
+                <span class="truncate max-w-[130px] font-mono text-[11px]">{{ server.version || getServerStatus(server).versionName || '1.8 - 1.21' }}</span>
               </div>
             </div>
 
             <!-- Mini capacity progress bar -->
             <div
               v-if="getServerStatus(server).players.online >= 0 && getServerStatus(server).players.max > 0"
-              class="w-full bg-white/10 h-1 rounded-full overflow-hidden"
+              class="w-full bg-white/10 h-1.5 rounded-full overflow-hidden"
             >
               <div
-                class="h-full bg-gradient-to-r from-cyan-400 to-emerald-400 transition-all duration-500"
+                class="h-full bg-gradient-to-r from-cyan-400 via-sky-400 to-emerald-400 transition-all duration-500 shadow-sm shadow-cyan-400/50"
                 :style="{ width: `${Math.min(100, Math.round((getServerStatus(server).players.online / getServerStatus(server).players.max) * 100))}%` }"
               />
             </div>
           </div>
 
-          <!-- MOTD / Description -->
-          <div class="mt-2.5 min-h-[36px] text-xs text-gray-300 line-clamp-2 leading-relaxed">
+          <!-- MOTD / Description in Recessed Dark Glass Viewport -->
+          <div class="mt-2.5 server-motd-slot min-h-[44px] text-xs text-gray-200 line-clamp-2 leading-relaxed flex items-center">
             <TextComponent
               v-if="getServerStatus(server).description && !isGenericUnknown(getServerStatus(server).description)"
               :source="getServerStatus(server).description"
             />
-            <span v-else class="text-gray-400">
+            <span v-else class="text-gray-300/80">
               {{ server.description }}
             </span>
           </div>
 
           <!-- Tags -->
-          <div class="flex items-center gap-1 mt-2 flex-wrap">
+          <div class="flex items-center gap-1 mt-2.5 flex-wrap">
             <v-chip
               v-for="tag in server.tags.slice(0, 4)"
               :key="tag"
               size="x-small"
               variant="tonal"
               :color="server.custom ? 'purple' : 'cyan'"
-              class="text-[10px] px-1.5 h-4.5"
+              class="text-[10px] px-2 h-5 font-medium border border-white/8"
             >
               #{{ tag }}
             </v-chip>
@@ -614,7 +622,7 @@
         </div>
 
         <!-- Card Footer Actions -->
-        <div class="flex items-center justify-between gap-2 mt-4 pt-3 border-t border-white/5">
+        <div class="flex items-center justify-between gap-2 mt-4 pt-3 border-t border-white/8">
           <!-- Left side: Refresh single + Edit/Delete if custom -->
           <div class="flex items-center gap-1">
             <v-btn
@@ -674,6 +682,7 @@
               size="small"
               rounded="lg"
               prepend-icon="playlist_add"
+              class="font-semibold text-xs border border-white/10"
               v-shared-tooltip="t('servers.addToInstance')"
               @click="addServerToActiveInstance(server)"
             >
@@ -687,7 +696,7 @@
               size="small"
               rounded="lg"
               prepend-icon="play_arrow"
-              class="font-bold shadow-md shadow-cyan-500/20 btn-play-shine"
+              class="font-bold shadow-md shadow-cyan-500/25 btn-play-frost"
               @click="launchServerDirectly(server)"
             >
               {{ t('servers.playDirect') }}
@@ -740,8 +749,8 @@
         v-for="(server, index) in filteredServers"
         :key="server.id"
         data-testid="server-card"
-        class="server-card animated-card group flex items-center justify-between p-3 rounded-xl border border-white/10 bg-slate-900/60 hover:bg-slate-800/80 hover:border-cyan-500/40 hover:-translate-y-0.5 transition-all duration-150 backdrop-blur-sm gap-4"
-        :class="{ 'border-purple-500/40 bg-purple-950/25': server.custom }"
+        class="server-card server-row-interactive animated-card group flex items-center justify-between p-3.5 gap-4"
+        :class="{ 'custom-card': server.custom }"
         :style="{ animationDelay: `${Math.min(index * 25, 250)}ms` }"
       >
         <!-- Left: Favicon, Name, Host -->
@@ -929,7 +938,7 @@
             size="x-small"
             rounded="md"
             prepend-icon="play_arrow"
-            class="font-bold btn-play-shine"
+            class="font-bold shadow-md shadow-cyan-500/20 btn-play-frost"
             @click="launchServerDirectly(server)"
           >
             {{ t('servers.playDirect') }}
@@ -2240,9 +2249,9 @@ onMounted(() => {
 
 <style scoped>
 .servers-page {
-  background: radial-gradient(circle at top left, rgba(14, 165, 233, 0.08), transparent 45%),
-              radial-gradient(circle at bottom right, rgba(99, 102, 241, 0.08), transparent 45%),
-              radial-gradient(circle at center right, rgba(245, 158, 11, 0.04), transparent 50%);
+  background: radial-gradient(circle at 10% 20%, rgba(14, 165, 233, 0.12) 0%, transparent 45%),
+              radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
+              radial-gradient(circle at 50% 50%, rgba(8, 20, 36, 0.25) 0%, transparent 60%);
 }
 
 @keyframes auroraShift {
@@ -2255,9 +2264,248 @@ onMounted(() => {
 }
 
 .aurora-header {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(8, 47, 73, 0.65), rgba(30, 27, 75, 0.65), rgba(15, 23, 42, 0.95));
-  background-size: 250% 250%;
-  animation: auroraShift 14s ease-in-out infinite;
+  background: linear-gradient(135deg, rgba(8, 20, 36, 0.85) 0%, rgba(15, 23, 42, 0.75) 45%, rgba(12, 38, 64, 0.85) 100%) !important;
+  backdrop-filter: blur(28px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+  border: 1px solid rgba(56, 189, 248, 0.25) !important;
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(255, 255, 255, 0.22), 0 0 32px rgba(56, 189, 248, 0.12) !important;
+  border-radius: 20px !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.aurora-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(56, 189, 248, 0.85) 50%, transparent 100%);
+  pointer-events: none;
+}
+
+/* Frosted Metric Tiles */
+.frost-metric-tile {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.frost-metric-tile:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4), 0 0 16px rgba(56, 189, 248, 0.2);
+}
+
+/* Frosted Category Chip */
+.frost-category-chip {
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-radius: 12px !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.frost-category-chip:hover {
+  border-color: rgba(56, 189, 248, 0.5) !important;
+  transform: translateY(-1px);
+}
+
+.frost-category-chip.active-chip {
+  background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4) !important;
+  color: white !important;
+}
+
+/* Sleek Gaming Server Card */
+.server-card-interactive {
+  background: rgba(10, 20, 36, 0.72) !important;
+  backdrop-filter: blur(28px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+  border: 1px solid rgba(56, 189, 248, 0.22) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 16px rgba(56, 189, 248, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  will-change: transform, box-shadow;
+}
+
+.server-card-interactive::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(56, 189, 248, 0.85) 50%, transparent 100%);
+  opacity: 0.6;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.server-card-interactive::after {
+  content: '';
+  position: absolute;
+  top: -60%;
+  left: -70%;
+  width: 50%;
+  height: 220%;
+  background: linear-gradient(65deg, transparent 0%, rgba(255, 255, 255, 0.16) 45%, rgba(56, 189, 248, 0.24) 50%, transparent 100%);
+  transform: rotate(25deg);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.server-card-interactive:hover::after {
+  opacity: 1;
+  left: 150%;
+  transition: left 0.75s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.15s ease;
+}
+
+.server-card-interactive:hover {
+  transform: translateY(-5px) !important;
+  border-color: rgba(56, 189, 248, 0.90) !important;
+  box-shadow: 0 20px 48px -6px rgba(0, 0, 0, 0.65), 0 0 36px rgba(56, 189, 248, 0.55), 0 0 64px rgba(56, 189, 248, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.4), inset 0 0 20px rgba(56, 189, 248, 0.16) !important;
+}
+
+.server-card-interactive:hover::before {
+  opacity: 1;
+}
+
+/* Custom Server Variant */
+.server-card-interactive.custom-card {
+  border-color: rgba(168, 85, 247, 0.35) !important;
+  background: rgba(24, 16, 40, 0.72) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 16px rgba(168, 85, 247, 0.14), inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
+}
+
+.server-card-interactive.custom-card::before {
+  background: linear-gradient(90deg, transparent 0%, rgba(192, 132, 252, 0.85) 50%, transparent 100%);
+}
+
+.server-card-interactive.custom-card:hover {
+  border-color: rgba(192, 132, 252, 0.90) !important;
+  box-shadow: 0 20px 48px -6px rgba(0, 0, 0, 0.65), 0 0 36px rgba(168, 85, 247, 0.60), 0 0 64px rgba(168, 85, 247, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.4), inset 0 0 20px rgba(168, 85, 247, 0.16) !important;
+}
+
+/* High-tech Favicon Container */
+.server-favicon-box {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  transition: all 0.2s ease;
+}
+
+.server-card-interactive:hover .server-favicon-box {
+  border-color: rgba(56, 189, 248, 0.6);
+  transform: scale(1.05);
+}
+
+/* Recessed MOTD Slot */
+.server-motd-slot {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 8px 12px;
+  min-height: 48px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* Play Now Button with Shimmer Sweep */
+.btn-play-frost {
+  background: linear-gradient(135deg, #0284c7 0%, #38bdf8 60%, #0ea5e9 100%) !important;
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.6) !important;
+  border-radius: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.3px !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-play-frost:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(56, 189, 248, 0.65), 0 0 18px rgba(56, 189, 248, 0.45) !important;
+}
+
+.btn-play-frost:active {
+  transform: translateY(0);
+}
+
+.btn-play-frost::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 40%;
+  height: 200%;
+  background: linear-gradient(60deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
+  transform: rotate(25deg);
+  pointer-events: none;
+}
+
+.btn-play-frost:hover::after {
+  left: 140%;
+  transition: all 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Add Custom Server Ethereal Card */
+.add-custom-card-animated {
+  background: radial-gradient(circle at center, rgba(14, 165, 233, 0.12) 0%, rgba(10, 20, 36, 0.65) 100%) !important;
+  border: 2px dashed rgba(56, 189, 248, 0.45) !important;
+  border-radius: 18px !important;
+  backdrop-filter: blur(24px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  animation: portalPulse 3.5s ease-in-out infinite;
+}
+
+@keyframes portalPulse {
+  0%, 100% {
+    border-color: rgba(56, 189, 248, 0.40);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 16px rgba(56, 189, 248, 0.15);
+  }
+  50% {
+    border-color: rgba(56, 189, 248, 0.85);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45), 0 0 28px rgba(56, 189, 248, 0.40);
+  }
+}
+
+.add-custom-card-animated:hover {
+  transform: translateY(-6px) scale(1.01) !important;
+  border-color: rgba(56, 189, 248, 0.95) !important;
+  box-shadow: 0 20px 48px -6px rgba(0, 0, 0, 0.6), 0 0 40px rgba(56, 189, 248, 0.55), 0 0 64px rgba(56, 189, 248, 0.25), inset 0 0 24px rgba(56, 189, 248, 0.2) !important;
+  background: radial-gradient(circle at center, rgba(14, 165, 233, 0.25) 0%, rgba(10, 20, 36, 0.8) 100%) !important;
+}
+
+/* List View Row Styling */
+.server-row-interactive {
+  background: rgba(10, 20, 36, 0.72) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(56, 189, 248, 0.2) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.server-row-interactive:hover {
+  transform: translateX(4px) translateY(-2px) !important;
+  border-color: rgba(56, 189, 248, 0.90) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), 0 0 32px rgba(56, 189, 248, 0.50), 0 0 60px rgba(56, 189, 248, 0.22), inset 0 0 16px rgba(56, 189, 248, 0.20) !important;
+  background: rgba(15, 25, 45, 0.85) !important;
 }
 
 @keyframes cardEntrance {
@@ -2286,21 +2534,6 @@ onMounted(() => {
 
 .float-icon {
   animation: floatGentle 3s ease-in-out infinite;
-}
-
-@keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: 0 0 15px rgba(6, 182, 212, 0.12), inset 0 0 15px rgba(6, 182, 212, 0.04);
-    border-color: rgba(6, 182, 212, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 28px rgba(6, 182, 212, 0.35), inset 0 0 20px rgba(6, 182, 212, 0.1);
-    border-color: rgba(6, 182, 212, 0.85);
-  }
-}
-
-.add-custom-card-animated {
-  animation: pulseGlow 3.5s ease-in-out infinite;
 }
 
 @keyframes radarPing {
@@ -2340,44 +2573,5 @@ onMounted(() => {
 
 .pop-active {
   animation: popCheck 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.btn-play-shine {
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-play-shine::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -60%;
-  width: 40%;
-  height: 200%;
-  background: linear-gradient(
-    60deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.28) 50%,
-    transparent 100%
-  );
-  transform: rotate(25deg);
-  pointer-events: none;
-}
-
-.btn-play-shine:hover::after {
-  left: 140%;
-  transition: all 0.65s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.server-card-interactive {
-  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.22s ease,
-              box-shadow 0.22s ease,
-              background-color 0.22s ease;
-  will-change: transform, box-shadow;
-}
-
-.server-card-interactive:hover {
-  transform: translateY(-5px) scale(1.008);
 }
 </style>

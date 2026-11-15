@@ -23,12 +23,12 @@ export const DEFAULT_SURFACE_DIALOG_RADIUS = 32
 /** Vuetify `rounded` prop value equivalent to `DEFAULT_SURFACE_RADIUS`. */
 export const DEFAULT_SURFACE_RADIUS_PROP = 'xl' as const
 
-export const DEFAULT_SURFACE_BORDER = '1px solid rgba(255, 255, 255, 0.16)'
-export const DEFAULT_SURFACE_SHADOW = '0 20px 48px -8px rgba(0, 0, 0, 0.50), inset 0 1px 1px 0 rgba(255, 255, 255, 0.22)'
+export const DEFAULT_SURFACE_BORDER = '1px solid rgba(255, 255, 255, 0.18)'
+export const DEFAULT_SURFACE_SHADOW = '0 20px 48px -8px rgba(0, 0, 0, 0.55), inset 0 1px 1px 0 rgba(255, 255, 255, 0.25)'
 
 /** Apple frosted-glass background shared by dialogs, menus and popovers. */
-export const DEFAULT_SURFACE_BG = 'rgba(15, 23, 42, 0.68)'
-export const DEFAULT_SURFACE_BLUR = 28
+export const DEFAULT_SURFACE_BG = 'rgba(15, 23, 42, 0.70)'
+export const DEFAULT_SURFACE_BLUR = 32
 
 /** Menu-only: inner padding and list-item radius. */
 export const DEFAULT_SURFACE_MENU_PADDING = 6
@@ -56,16 +56,16 @@ export const DEFAULT_CARD_ITEM_RADIUS = 10       // tier 3: list / compact tiles
 export const DEFAULT_CARD_SUBSECTION_ELEVATION = 0
 
 /** Subsection card bg — Apple frosted-glass translucent slate. */
-export const DEFAULT_CARD_SUBSECTION_BG = 'rgba(15, 23, 42, 0.52)'
+export const DEFAULT_CARD_SUBSECTION_BG = 'rgba(15, 23, 42, 0.58)'
 /** Subsection card border — Apple frosted glass border. */
-export const DEFAULT_CARD_SUBSECTION_BORDER = '1px solid rgba(255, 255, 255, 0.14)'
+export const DEFAULT_CARD_SUBSECTION_BORDER = '1px solid rgba(255, 255, 255, 0.16)'
 
 // Row card — list rows (Me instance, Friends rows). Same border-swap
 // interaction as `.surface-card-clickable` but with the small item
 // radius and no lift / shadow (rows pack too tightly for that).
-export const DEFAULT_CARD_ROW_BG = 'rgba(15, 23, 42, 0.48)'
-export const DEFAULT_CARD_ROW_BORDER = '1px solid rgba(255, 255, 255, 0.12)'
-export const DEFAULT_CARD_ROW_BORDER_HOVER = '1px solid rgba(56, 189, 248, 0.55)'
+export const DEFAULT_CARD_ROW_BG = 'rgba(15, 23, 42, 0.52)'
+export const DEFAULT_CARD_ROW_BORDER = '1px solid rgba(255, 255, 255, 0.14)'
+export const DEFAULT_CARD_ROW_BORDER_HOVER = '1px solid rgba(56, 189, 248, 0.65)'
 /** Scale applied while the row is being pressed (1 = none). */
 export const DEFAULT_CARD_ROW_ACTIVE_SCALE = 0.98
 export const DEFAULT_CARD_ROW_TRANSITION = 'border-color 0.2s ease, background-color 0.15s ease, transform 0.1s ease'
@@ -78,8 +78,8 @@ export const DEFAULT_CARD_BORDER = 'none'
 // Info / frosted panels — the recurring "rounded-2xl border border-white/10
 // bg-white/5" pattern used inside dialogs (Feedback / Export / Friends).
 export const DEFAULT_PANEL_RADIUS = 24
-export const DEFAULT_PANEL_BG = 'rgba(15, 23, 42, 0.50)'
-export const DEFAULT_PANEL_BORDER = '1px solid rgba(255, 255, 255, 0.14)'
+export const DEFAULT_PANEL_BG = 'rgba(15, 23, 42, 0.55)'
+export const DEFAULT_PANEL_BORDER = '1px solid rgba(255, 255, 255, 0.16)'
 
 // Prominent cards — Store detail / market tile / large feature cards.
 // Same radius as panels (24px) but no built-in bg/border so the host
@@ -92,10 +92,10 @@ export const DEFAULT_CARD_PROMINENT_RADIUS = 24
 // shadow + primary-tinted border). Override per-callsite via inner
 // UnoCSS atomics if a specific tile needs to deviate.
 export const DEFAULT_CARD_CLICKABLE_RADIUS = 24
-export const DEFAULT_CARD_CLICKABLE_BG = 'rgba(15, 23, 42, 0.52)'
-export const DEFAULT_CARD_CLICKABLE_BORDER = '1px solid rgba(255, 255, 255, 0.14)'
-export const DEFAULT_CARD_CLICKABLE_BORDER_HOVER = '1px solid rgba(56, 189, 248, 0.55)'
-export const DEFAULT_CARD_CLICKABLE_SHADOW_HOVER = '0 16px 36px -8px rgba(0, 0, 0, 0.45), 0 0 20px rgba(56, 189, 248, 0.22), inset 0 1px 1px 0 rgba(255, 255, 255, 0.28)'
+export const DEFAULT_CARD_CLICKABLE_BG = 'rgba(15, 23, 42, 0.58)'
+export const DEFAULT_CARD_CLICKABLE_BORDER = '1px solid rgba(255, 255, 255, 0.16)'
+export const DEFAULT_CARD_CLICKABLE_BORDER_HOVER = '1px solid rgba(56, 189, 248, 0.65)'
+export const DEFAULT_CARD_CLICKABLE_SHADOW_HOVER = '0 16px 36px -8px rgba(0, 0, 0, 0.45), 0 0 24px rgba(56, 189, 248, 0.28), inset 0 1px 1px 0 rgba(255, 255, 255, 0.32)'
 /** Hover lift in px (negative = upward). */
 export const DEFAULT_CARD_CLICKABLE_LIFT = -4
 /** Scale applied while the card is being pressed (1 = none). */

@@ -76,6 +76,8 @@ function onClick(event: MouseEvent) {
   transition:
     border-radius 0.2s cubic-bezier(0.4, 0, 0.2, 1),
     background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.2s ease,
     color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   cursor: default;
@@ -88,6 +90,13 @@ function onClick(event: MouseEvent) {
 .sidebar-item--clickable:hover .sidebar-item__content {
   border-radius: 16px;
   background-color: rgba(255, 255, 255, 0.18);
+  transform: scale(1.14) translateY(-2px);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.65), 0 4px 16px rgba(56, 189, 248, 0.40) !important;
+}
+
+.sidebar-item--clickable:active .sidebar-item__content {
+  transform: scale(0.92) translateY(0);
+  transition: transform 0.1s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .sidebar-item--clickable.sidebar-item--colored:hover .sidebar-item__content {

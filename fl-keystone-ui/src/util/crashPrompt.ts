@@ -22,45 +22,51 @@ export function toVirtualInstancePath(filePath: string, instancePath: string) {
   return relative
 }
 
+function trimLogForAI(text: string, maxLen = 5000): string {
+  if (!text) return ''
+  const trimmed = text.trim()
+  if (trimmed.length <= maxLen) return trimmed
+  return '...[log truncated for length]\n' + trimmed.slice(-maxLen)
+}
+
 export function getCrashPrompt(useCN: boolean, crash: string, log: string, localeCode: string) {
+  const safeCrash = trimLogForAI(crash)
+  const safeLog = trimLogForAI(log)
+
   if (useCN) {
     return `你是Minecraft 崩溃报告（crash report）助手，帮助我分析crash造成的原因。你应当首先分析出游戏崩溃的主要原因（java，游戏原版library，mod，或者是其他原因）
 对于java问题或者游戏原版library，你应当直接提醒我。
-若是mod造成的崩溃，你应当通过日志分析出哪些mod可能造成这些错误，并提示我。注意我正在是用XMCL，关于修复崩溃的建议（如下载 Mod）应当在 XMCL 里进行。
+若是mod造成的崩溃，你应当通过日志分析出哪些mod可能造成这些错误，并提示我。注意我正在使用 Frost Launcher，关于修复崩溃的建议（如下载 Mod、调整 Java 或内存）应当在 Frost Launcher 里进行。
 
-如果实在分析不出具体原因，请告知我应当联系开发者。添加QQ群：858391850
+如果实在分析不出具体原因，请告知我应当联系开发者。
 
 这是当前的崩溃报告:
 \`\`\`
-${crash}
+${safeCrash}
 \`\`\`
 
 这是最新的日志作为补充：
 \`\`\`
-${log}
+${safeLog}
 \`\`\`
 `
   } else {
-    return `
-You are a Minecraft crash report assistant, helping me analyze the causes of crashes. You should first identify the main reason for the game crash (Java issues, missing vanilla game libraries, mod-related problems, or other causes).
+    return `You are a Minecraft crash diagnostic assistant helping me fix a game crash in Frost Launcher. First, identify the exact root cause of the crash (e.g. incompatible mod, missing dependency, Java version mismatch, out of memory, or corrupted file).
 
-For Java issues or missing vanilla game libraries, you should provide direct reminders. Please note that I am using XMCL, and any suggestions for fixing crashes (such as downloading mods) should be done within XMCL.
+Then, provide clear step-by-step instructions to fix it directly in Frost Launcher (such as removing a bad mod, changing Java runtime, or allocating more RAM).
 
-If the crash is caused by mods, you should analyze the logs to determine which mods may be responsible for the errors and notify me.
+My preferred language is ${localeCode}.
 
-If the specific cause cannot be determined, please inform me that I should contact the developers. Join discord: https://discord.gg/W5XVwYY7GQ
-
-I prefer you to response my with locale ${localeCode}.
-
-Here is the current crash report:
+Here is the crash report:
 \`\`\`
-${crash}
+${safeCrash || 'No explicit crash report available.'}
 \`\`\`
-Here is the latest log as supplementary information:
+
+Here are the latest game logs:
 \`\`\`
-${log}
+${safeLog || 'No supplementary log available.'}
 \`\`\`
-    `
+`
   }
 }
 

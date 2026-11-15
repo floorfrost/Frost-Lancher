@@ -368,11 +368,23 @@ useDragAutoScroll(instancesScrollEl)
   overflow: hidden;
   border-right: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25), inset -1px 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.sidebar:hover {
+  border-right-color: rgba(56, 189, 248, 0.75) !important;
+  box-shadow: 6px 0 32px rgba(0, 0, 0, 0.35), 4px 0 28px rgba(56, 189, 248, 0.35) !important;
 }
 
 .sidebar-horizontal {
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), inset 0 1px 1px 0 rgba(255, 255, 255, 0.2);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.sidebar-horizontal:hover {
+  border-color: rgba(56, 189, 248, 0.75) !important;
+  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.45), 0 0 28px rgba(56, 189, 248, 0.35) !important;
 }
 
 .sidebar__section {

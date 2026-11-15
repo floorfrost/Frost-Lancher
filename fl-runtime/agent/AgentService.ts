@@ -1,6 +1,8 @@
 import {
   AgentServiceKey,
   BUILTIN_AGENT_FLIGHT,
+  BUILTIN_AGENT_ENDPOINT,
+  BUILTIN_AGENT_MODEL,
   DEFAULT_AGENT_ENDPOINT,
   DEFAULT_AGENT_MODEL,
   type AgentConversationKey,
@@ -64,7 +66,7 @@ export class AgentService extends AbstractService implements IAgentService {
         .catch(() => undefined)
     return {
       endpoint,
-      model: settings.agentModel || DEFAULT_AGENT_MODEL,
+      model: (!settings.agentModel || settings.agentModel === 'xmcl-agent') ? 'Frost Agent' : settings.agentModel,
       configured,
       mode: provider.mode,
     }
@@ -96,19 +98,17 @@ export class AgentService extends AbstractService implements IAgentService {
       await this.apiKeys.put(endpoint, input.apiKey)
     }
     settings.agentProviderSet({
-      endpoint,
+      endpoint: input.endpoint.trim(),
       model: input.model.trim(),
     })
   }
 
   async [kResolvedAgentProvider](): Promise<ResolvedAgentProvider> {
     const settings = await this.app.registry.get(kSettings)
-    const endpoint = settings.agentEndpoint.trim()
-    const model = settings.agentModel.trim()
-    if (endpoint || model) {
-      if (!endpoint || !model) return { mode: 'unconfigured' }
-      const apiKey = await this.apiKeys.get(endpoint)
-      if (!apiKey) return { mode: 'unconfigured' }
+    const endpoint = settings.agentEndpoint.trim() || BUILTIN_AGENT_ENDPOINT
+    const model = settings.agentModel.trim() || BUILTIN_AGENT_MODEL
+    const apiKey = (await this.apiKeys.get(endpoint)) || (await this.apiKeys.get(BUILTIN_AGENT_ENDPOINT))
+    if (apiKey) {
       return { mode: 'custom', endpoint, model, apiKey }
     }
 

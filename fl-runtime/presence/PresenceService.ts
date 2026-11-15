@@ -6,6 +6,8 @@ import { kSettings } from '~/settings'
 import { LauncherApp } from '../app/LauncherApp'
 import { LaunchService } from '../launch/LaunchService'
 
+export const DEFAULT_FROST_DISCORD_CLIENT_ID = '1571131198875500674'
+
 @ExposeServiceKey(PresenceServiceKey)
 export class PresenceService extends AbstractService implements IPresenceService {
   private discord: Client
@@ -28,8 +30,9 @@ export class PresenceService extends AbstractService implements IPresenceService
     })
 
     // Initialize Discord client first before setting up event listeners
+    const initialClientId = this.settings.discordClientId || DEFAULT_FROST_DISCORD_CLIENT_ID
     this.discord = new Client({
-      clientId: '1075044884400054363',
+      clientId: initialClientId,
     })
 
     settings.subscribe('discordPresenceSet', async (state) => {
@@ -39,6 +42,19 @@ export class PresenceService extends AbstractService implements IPresenceService
         })
       } else {
         await this.discord.destroy()
+      }
+    })
+
+    settings.subscribe('discordClientIdSet', async (newId) => {
+      this.log('Discord Client ID updated: %s. Reconnecting...', newId)
+      await this.discord.destroy().catch(() => {})
+      this.discord = new Client({
+        clientId: newId || DEFAULT_FROST_DISCORD_CLIENT_ID,
+      })
+      if (this.settings.discordPresence) {
+        await this.discord.connect().catch((e: any) => {
+          this.warn('Fail to connect to discord with new clientId. %o', e)
+        })
       }
     })
 
@@ -106,8 +122,10 @@ export class PresenceService extends AbstractService implements IPresenceService
       }
     }
     const param = this.current
-    this.current.largeImageKey = 'dark_512'
-    this.current.startTimestamp = Date.now()
+    this.current.state = 'Frost Launcher'
+    this.current.largeImageKey = 'frost_logo'
+    this.current.largeImageText = 'Frost Launcher'
+    this.current.startTimestamp = this.current.startTimestamp || Date.now()
     this.current.details = activity
     await this.discord.user?.setActivity(param).catch((e: any) => {
       this.warn('Fail to set discord presence. %o', e)

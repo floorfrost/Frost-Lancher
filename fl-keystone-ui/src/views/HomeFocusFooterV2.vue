@@ -1,10 +1,10 @@
 <template>
-  <div class="w-full">
-    <div class="relative footer flex-grow flex items-end">
-      <HomeFooterCard />
+  <div class="w-full pointer-events-none">
+    <div class="relative footer flex-grow flex items-end pointer-events-none">
+      <HomeFooterCard class="pointer-events-auto" />
       <div
         key="launch-button-group"
-        class="flex flex-wrap justify-end items-center gap-y-6 gap-x-2 flex-grow"
+        class="flex flex-wrap justify-end items-center gap-y-6 gap-x-2 flex-grow pointer-events-auto"
       >
         <HomeLaunchButtonStatus
           class="mr-4 ml-2"

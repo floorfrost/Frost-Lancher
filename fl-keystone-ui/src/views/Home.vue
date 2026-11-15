@@ -8,6 +8,11 @@
     <HomeCriticalError />
     <transition name="slide-y-reverse-transition" mode="out-in">
       <div v-if="!isFocus" class="mx-3 relative">
+        <!-- 3D Center Floating Character Stage -->
+        <div class="flex justify-center w-full my-2">
+          <HomeCharacterStage />
+        </div>
+
         <Transition name="slide-y-reverse-transition">
           <div v-if="!isBedrock" class="flex items-center justify-center gap-1 sticky top-40 z-3">
             <v-divider class="divider mx-0" />
@@ -40,7 +45,13 @@
           />
         </template>
       </div>
-      <HomeFocusFooter v-else class="absolute bottom-0 left-0 pb-[26px]" />
+      <div v-else class="h-full w-full relative overflow-hidden">
+        <!-- 3D Center Stage in Focus View (Vertically Elevated Floating in Air) -->
+        <div class="focus-center-stage-container absolute inset-0 flex items-center justify-center -translate-y-8 pointer-events-none z-10">
+          <HomeCharacterStage class="pointer-events-auto" />
+        </div>
+        <HomeFocusFooter class="absolute bottom-0 left-0 pb-[26px] z-20 pointer-events-none" />
+      </div>
     </transition>
   </div>
 </template>
@@ -62,6 +73,7 @@ import type { DriveStep } from 'driver.js'
 import HomeCriticalError from './HomeCriticalError.vue'
 import HomeFocusFooter from './HomeFocusFooterV2.vue'
 import HomeBedrock from './HomeBedrock.vue'
+import HomeCharacterStage from './HomeCharacterStage.vue'
 import HomeGrid from './HomeGrid.vue'
 import HomeUpstreamCurseforge from './HomeUpstreamCurseforge.vue'
 import HomeUpstreamFeedTheBeast from './HomeUpstreamFeedTheBeast.vue'

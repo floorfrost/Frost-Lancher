@@ -41,6 +41,9 @@ function createController(): WindowController {
   ipcRenderer.on('navigate', (_, route: string) => {
     emitter.emit('navigate', route)
   })
+  ipcRenderer.on('in-game-overlay-open', (_, payload) => {
+    emitter.emit('in-game-overlay-open', payload)
+  })
   const emitter = new EventEmitter()
 
   const writeClipboard =
@@ -84,6 +87,8 @@ function createController(): WindowController {
     show,
     close,
     hide,
+    closeInGameOverlay: () => ipcRenderer.invoke('in-game-overlay-close'),
+    setAlwaysOnTop: (flag: boolean) => ipcRenderer.invoke('set-always-on-top', flag),
     showOpenDialog(...options: any[]) {
       return ipcRenderer.invoke('dialog:showOpenDialog', ...options)
     },

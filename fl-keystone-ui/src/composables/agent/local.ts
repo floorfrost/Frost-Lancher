@@ -105,12 +105,23 @@ export function useLocalAgent(options: LocalAgentOptions): LocalAgentSession {
     return providerApi.streamSimple(transportModel, context, {
       ...streamOptions,
       apiKey: 'runtime-managed',
-      onPayload: settings.mode.value === 'builtin'
-        ? payload => {
-            if (!activeBuiltInContext) throw new Error('Built-in agent request context is unavailable')
-            return createXmclBuiltInPayload(payload, activeBuiltInContext)
-          }
-        : streamOptions?.onPayload,
+      onPayload: async (payload, model) => {
+        let currentPayload = payload
+        if (currentPayload && typeof currentPayload === 'object' && 'store' in currentPayload) {
+          const mutable = { ...currentPayload } as Record<string, unknown>
+          delete mutable.store
+          currentPayload = mutable
+        }
+        if (settings.mode.value === 'builtin') {
+          if (!activeBuiltInContext) throw new Error('Built-in agent request context is unavailable')
+          currentPayload = createXmclBuiltInPayload(currentPayload, activeBuiltInContext)
+        }
+        if (streamOptions?.onPayload) {
+          const next = await streamOptions.onPayload(currentPayload, model)
+          if (next !== undefined) currentPayload = next
+        }
+        return currentPayload
+      },
       onResponse: async (response, responseModel) => {
         if (activeRunTelemetry) recordAgentProviderResponse(activeRunTelemetry, response.status)
         await streamOptions?.onResponse?.(response, responseModel)

@@ -10,6 +10,7 @@
     <div class="relative inline-flex items-center gap-4">
       <!-- Frost Launch Button Container -->
       <div class="relative group">
+
         <!-- Floating Snow Sparkles & Particles Drifting Upwards -->
         <div class="snow-particles-emitter" aria-hidden="true">
           <span class="snow-flake lp1" />
@@ -122,7 +123,7 @@
           type="button"
           :disabled="isValidating"
           class="frost-btn frost-btn--launch flex items-center justify-center font-bold transition-all duration-300"
-          :class="{ 'opacity-80 cursor-not-allowed': isValidating, 'compact': compact }"
+          :class="{ 'opacity-80 cursor-not-allowed': isValidating, 'compact': compact, 'is-loading': loading }"
           :aria-label="text"
           @click="onPlayClick"
           @mouseenter="onHoverEnter"
@@ -140,13 +141,15 @@
             data-testid="launch-button-play"
             class="inline-flex items-center ml-3"
           >
-            <v-progress-circular
+            <div
               v-if="loading"
-              indeterminate
-              :size="24"
-              :width="2.5"
-              color="white"
-            />
+              class="frost-btn-spinner flex items-center justify-center"
+            >
+              <svg class="frost-btn-spinner-svg" viewBox="0 0 28 28">
+                <circle class="frost-btn-spinner-track" cx="14" cy="14" r="10" fill="none" stroke-width="2.5" />
+                <circle class="frost-btn-spinner-arc" cx="14" cy="14" r="10" fill="none" stroke-width="2.5" stroke-linecap="round" />
+              </svg>
+            </div>
             <v-icon
               v-else
               size="28"
@@ -362,6 +365,25 @@ function onPlayClick() {
   min-width: 224px;
   padding: 0 40px;
   border-radius: 9999px;
+  animation: launchBtnBreathingGlow 3.5s ease-in-out infinite;
+}
+
+@keyframes launchBtnBreathingGlow {
+  0%, 100% {
+    box-shadow:
+      0 0 24px rgba(56, 189, 248, 0.60),
+      0 8px 24px rgba(0, 0, 0, 0.40),
+      inset 0 2px 4px rgba(255, 255, 255, 0.85),
+      inset 0 -2px 6px rgba(3, 105, 161, 0.85);
+  }
+  50% {
+    box-shadow:
+      0 0 44px rgba(56, 189, 248, 0.95),
+      0 0 22px rgba(168, 85, 247, 0.40),
+      0 10px 28px rgba(0, 0, 0, 0.45),
+      inset 0 2px 5px rgba(255, 255, 255, 1),
+      inset 0 -3px 8px rgba(3, 105, 161, 0.95);
+  }
 }
 
 .frost-btn--launch.compact {
@@ -381,6 +403,94 @@ function onPlayClick() {
 
 .frost-btn--launch.compact .frost-btn__label {
   font-size: 22px;
+}
+
+/* Elegant Launch Loading State */
+.frost-btn--launch.is-loading {
+  animation: frost-launch-pulse 2s ease-in-out infinite alternate;
+}
+
+.frost-btn--launch.is-loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.22) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: frost-launch-shimmer 2.2s linear infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@keyframes frost-launch-pulse {
+  0% {
+    box-shadow:
+      0 0 28px rgba(56, 189, 248, 0.7),
+      0 8px 20px rgba(0, 0, 0, 0.4),
+      inset 0 2px 4px rgba(255, 255, 255, 0.9);
+  }
+  100% {
+    box-shadow:
+      0 0 44px rgba(56, 189, 248, 0.95),
+      0 10px 28px rgba(0, 0, 0, 0.5),
+      inset 0 2px 5px rgba(255, 255, 255, 1);
+  }
+}
+
+@keyframes frost-launch-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Custom Minimalist Spinner */
+.frost-btn-spinner {
+  width: 26px;
+  height: 26px;
+  z-index: 3;
+}
+
+.frost-btn-spinner-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  animation: frost-btn-spin 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.frost-btn-spinner-track {
+  stroke: rgba(255, 255, 255, 0.25);
+}
+
+.frost-btn-spinner-arc {
+  stroke: #ffffff;
+  stroke-dasharray: 62.8;
+  stroke-dashoffset: 20;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.8));
+  animation: frost-btn-arc 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes frost-btn-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes frost-btn-arc {
+  0% {
+    stroke-dashoffset: 50;
+  }
+  50% {
+    stroke-dashoffset: 12;
+  }
+  100% {
+    stroke-dashoffset: 50;
+  }
 }
 
 .frost-btn--settings {

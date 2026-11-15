@@ -1,6 +1,7 @@
 <template>
   <v-app v-if="!showSetup" class="w-full min-w-full h-full max-h-screen overflow-hidden select-none" :class="{ 'dark': isDark }">
     <AppBackground />
+    <AppFrostParticles />
     <div v-if="!isBigPicture" class="w-full h-full absolute left-0 header-overlay" :style="{
       height: headerHeight + 70 + 'px',
       'background-image': `linear-gradient(${appBarColor} 0%, color-mix(in srgb, ${appBarColor}, transparent) 65%, transparent 100%)`
@@ -15,7 +16,7 @@
       <AppSideBarNotch v-else />
       <main class="relative flex max-h-full flex-1 flex-col overflow-auto" :class="mainClasses">
         <router-view v-slot="{ Component }">
-          <transition name="fade-transition" mode="out-in">
+          <transition name="frost-page-zoom" mode="out-in">
             <component :is="Component" class="z-2" />
           </transition>
         </router-view>
@@ -23,6 +24,7 @@
     </div>
     <AppContextMenu />
     <AppNotifier />
+    <AppInGameOverlay v-model="inGameOverlayShown" />
     <AppOmniDialog :agent-enabled="true" />
     <AppAddInstanceDialog />
     <AppGameExitDialog />
@@ -47,8 +49,8 @@
         <div class="frost-glass-boot-pill flex items-center gap-3.5 px-6 py-3.5 rounded-2xl">
           <v-progress-circular indeterminate size="22" width="2.5" color="#38bdf8" />
           <div class="flex flex-col">
-            <span class="text-sm font-bold text-white tracking-wide">Frost Launcher लोड हो रहा है...</span>
-            <span class="text-xs text-cyan-200/70 font-medium">रिसोर्स और प्रोफाइल लोड किए जा रहे हैं</span>
+            <span class="text-sm font-bold text-white tracking-wide">Loading Frost Launcher...</span>
+            <span class="text-xs text-cyan-200/70 font-medium">Preparing resources and profiles</span>
           </div>
         </div>
       </div>
@@ -68,6 +70,7 @@
 
 <script lang=ts setup>
 import '@/assets/common.css'
+import AppFrostParticles from '@/components/AppFrostParticles.vue'
 import AppImageDialog from '@/components/AppImageDialog.vue'
 import InstanceScreenshots from '@/views/InstanceScreenshots.vue'
 import AppSharedTooltip from '@/components/AppSharedTooltip.vue'
@@ -112,6 +115,7 @@ import { UserSkinRenderPaused } from '@/composables/userSkin'
 import AppSideBarGroupSettingDialog from '@/views/AppSideBarGroupSettingDialog.vue'
 import AppGamepadPrompt from '@/views/AppGamepadPrompt.vue'
 import AppBigPictureView from '@/views/AppBigPictureView.vue'
+import AppInGameOverlay from '@/views/AppInGameOverlay.vue'
 import { kBigPicture, useBigPicture } from '@/composables/bigPicture'
 import { useInstanceGroupDefaultColor } from '@/composables/instanceGroup'
 import { kMultiplayerEntry, useMultiplayerEntry } from '@/composables/multiplayerEntry'
@@ -263,11 +267,11 @@ watch(() => settingsState.value?.updateInfo, (info) => {
     notify({
       level: 'info',
       icon: 'system_update',
-      title: 'नया अपडेट उपलब्ध है!',
-      body: `Frost Launcher ${info.name} उपलब्ध है। अपडेट करने के लिए क्लिक करें।`,
+      title: 'New Update Available!',
+      body: `Frost Launcher ${info.name} is available. Click to update.`,
       operations: [
         {
-          text: 'अपडेट करें',
+          text: 'Update Now',
           icon: 'system_update',
           handler: () => showUpdateInfoDialog(),
         },
@@ -280,7 +284,31 @@ watch(() => settingsState.value?.updateInfo, (info) => {
 const { instances: appInstances } = injection(kInstances)
 const isInitialBoot = ref(true)
 
+// In-Game Overlay State & Hotkey Listener
+const inGameOverlayShown = ref(false)
+
 onMounted(() => {
+  if (typeof windowController !== 'undefined' && windowController.on) {
+    windowController.on('in-game-overlay-open', () => {
+      inGameOverlayShown.value = !inGameOverlayShown.value
+    })
+  }
+
+  const handleCtrlF = (e: KeyboardEvent) => {
+    if (e.ctrlKey && e.key.toLowerCase() === 'f') {
+      const activeEl = document.activeElement
+      const isInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')
+      if (!isInput) {
+        e.preventDefault()
+        inGameOverlayShown.value = !inGameOverlayShown.value
+      }
+    }
+  }
+  window.addEventListener('keydown', handleCtrlF)
+  onUnmounted(() => {
+    window.removeEventListener('keydown', handleCtrlF)
+  })
+
   setTimeout(() => {
     isInitialBoot.value = false
   }, 1200)
@@ -336,5 +364,48 @@ img {
   -webkit-backdrop-filter: blur(28px) saturate(190%);
   border: 1px solid rgba(255, 255, 255, 0.18);
   box-shadow: 0 16px 48px -8px rgba(0, 0, 0, 0.65), inset 0 1px 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* Page Zoom-In Navigation Transition */
+.frost-page-zoom-enter-active {
+  transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transform-origin: center 25%;
+  will-change: opacity, transform, filter;
+  backface-visibility: hidden;
+}
+
+.frost-page-zoom-leave-active {
+  transition: opacity 0.16s cubic-bezier(0.4, 0, 1, 1),
+              transform 0.16s cubic-bezier(0.4, 0, 1, 1),
+              filter 0.16s cubic-bezier(0.4, 0, 1, 1) !important;
+  transform-origin: center 25%;
+  will-change: opacity, transform, filter;
+  backface-visibility: hidden;
+}
+
+.frost-page-zoom-enter-from {
+  opacity: 0 !important;
+  transform: scale(0.92) translateY(14px) !important;
+  filter: blur(8px) !important;
+}
+
+.frost-page-zoom-enter-to {
+  opacity: 1 !important;
+  transform: scale(1) translateY(0) !important;
+  filter: blur(0px) !important;
+}
+
+.frost-page-zoom-leave-from {
+  opacity: 1 !important;
+  transform: scale(1) translateY(0) !important;
+  filter: blur(0px) !important;
+}
+
+.frost-page-zoom-leave-to {
+  opacity: 0 !important;
+  transform: scale(1.05) translateY(-8px) !important;
+  filter: blur(6px) !important;
 }
 </style>

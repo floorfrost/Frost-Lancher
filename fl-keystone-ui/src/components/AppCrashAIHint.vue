@@ -103,14 +103,13 @@ const { push } = useRouter()
 
 function onAskAgent() {
   emit('close')
+  const prompt = props.getPrompt() || props.getAgentPrompt()
   if (!agentAvailable.value) {
+    openAgentChat({ prompt })
     push('/setting')
     return
   }
-  openAgentChat()
-  agent.send(props.getAgentPrompt()).catch((e) => {
-    console.error('[crash-agent]', e)
-  })
+  openAgentChat({ prompt })
 }
 
 const PlatformIcon = defineComponent({

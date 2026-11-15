@@ -426,7 +426,7 @@ function onServerExit(event: { pid: number; code?: number; signal?: string }) {
   const remainder = logRemainders.get(event.pid)
   if (remainder) localLogLines.value = localLogLines.value.concat(remainder)
   logRemainders.delete(event.pid)
-  localLogLines.value.push(`[XMCL] Server process exited (${event.code ?? event.signal ?? 'unknown'}).`)
+  localLogLines.value.push(`[FL] Server process exited (${event.code ?? event.signal ?? 'unknown'}).`)
 }
 
 async function loadLocalLog() {
@@ -770,7 +770,7 @@ const { refresh: onPlay, refreshing: loading, error } = useRefreshable(async () 
 })
 
 function getDesiredConfiguration(): InstanceServerConfig {
-  const serviceName = instance.value.serverConfig?.service.name || `xmcl-${instance.value.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'server'}`
+  const serviceName = instance.value.serverConfig?.service.name || `fl-${instance.value.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'server'}`
   return {
     eula: isAcceptEula.value,
     motd: motd.value || 'A Minecraft Server',

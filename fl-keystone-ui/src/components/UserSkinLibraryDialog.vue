@@ -93,6 +93,30 @@
                 <v-icon size="18">download</v-icon>
               </v-btn>
             </div>
+
+            <!-- Stage Animation Selector -->
+            <div class="w-full pt-2 border-t border-[rgba(var(--v-theme-on-surface),0.08)] flex flex-col gap-1.5">
+              <div class="text-[10px] font-semibold uppercase tracking-wider opacity-60 flex items-center justify-between">
+                <span>{{ t('userSkin.stageAnimation', 'Stage Animation') }}</span>
+                <span class="text-primary text-[10px] font-semibold truncate max-w-[140px] text-right">{{ activeAnimationOption.name }}</span>
+              </div>
+              <div class="flex gap-1.5">
+                <button
+                  v-for="opt of animationOptions"
+                  :key="opt.id"
+                  type="button"
+                  class="flex-1 py-1.5 px-2 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                  :class="selectedAnimation === opt.id
+                    ? 'border-primary bg-primary/15 text-primary shadow-sm shadow-primary/20 font-semibold'
+                    : 'border-[rgba(var(--v-theme-on-surface),0.1)] hover:border-[rgba(var(--v-theme-on-surface),0.25)] hover:bg-[rgba(var(--v-theme-on-surface),0.05)] opacity-80'"
+                  :title="opt.name"
+                  @click="selectedAnimation = opt.id"
+                >
+                  <v-icon size="14" :color="selectedAnimation === opt.id ? 'primary' : undefined">{{ opt.icon }}</v-icon>
+                  <span class="truncate">{{ opt.shortName }}</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -385,6 +409,7 @@ import { useNotifier } from '@/composables/notifier'
 import { useService } from '@/composables/service'
 import { SkinLibraryItem, useUserSkinLibrary } from '@/composables/userSkinLibrary'
 import { UserSkinModel } from '@/composables/userSkin'
+import { useSkinAnimation } from '@/composables/userSkinAnimation'
 import { AUTHORITY_MICROSOFT, AuthorityMetadata, GameProfileAndTexture, UserProfile, UserServiceKey } from '@xmcl/runtime-api'
 
 const props = defineProps<{
@@ -398,6 +423,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const { selectedAnimation, activeAnimationOption, options: animationOptions } = useSkinAnimation()
 const { notify } = useNotifier()
 const toLocaleError = useLocaleError()
 const { customSkins, allSkins, equippedSkinIds, refresh, addSkin, removeSkin, updateSkin, setEquippedSkin, fetchSkinFromUsername } = useUserSkinLibrary()

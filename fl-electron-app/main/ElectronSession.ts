@@ -121,6 +121,7 @@ export class ElectronSession {
             'Content-Type': mimeType,
             'Content-Length': stat.size.toString(),
             'Accept-Ranges': 'bytes',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
           },
         })
       }

@@ -85,9 +85,9 @@ export const pluginYggdrasilHandler: LauncherAppPlugin = (app) => {
         response.status = 200
         response.body = JSON.stringify({
           meta: {
-            implementationName: 'xmcl-offline-server',
+            implementationName: 'fl-offline-server',
             implementationVersion: '0.0.1',
-            serverName: 'XMCL Offline Server',
+            serverName: 'FL Offline Server',
           },
           skinDomains: [
             'localhost',

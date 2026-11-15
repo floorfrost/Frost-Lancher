@@ -56,6 +56,49 @@ p {
     position: absolute;
 }
 
+/* Frost Page Navigation Zoom Transition */
+.frost-page-zoom-enter-active {
+    transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+                filter 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transform-origin: center 25%;
+    will-change: opacity, transform, filter;
+    backface-visibility: hidden;
+}
+
+.frost-page-zoom-leave-active {
+    transition: opacity 0.16s cubic-bezier(0.4, 0, 1, 1),
+                transform 0.16s cubic-bezier(0.4, 0, 1, 1),
+                filter 0.16s cubic-bezier(0.4, 0, 1, 1) !important;
+    transform-origin: center 25%;
+    will-change: opacity, transform, filter;
+    backface-visibility: hidden;
+}
+
+.frost-page-zoom-enter-from {
+    opacity: 0 !important;
+    transform: scale(0.92) translateY(14px) !important;
+    filter: blur(8px) !important;
+}
+
+.frost-page-zoom-enter-to {
+    opacity: 1 !important;
+    transform: scale(1) translateY(0) !important;
+    filter: blur(0px) !important;
+}
+
+.frost-page-zoom-leave-from {
+    opacity: 1 !important;
+    transform: scale(1) translateY(0) !important;
+    filter: blur(0px) !important;
+}
+
+.frost-page-zoom-leave-to {
+    opacity: 0 !important;
+    transform: scale(1.05) translateY(-8px) !important;
+    filter: blur(6px) !important;
+}
+
 .dark {
   --icon-color: #cacaca;
   --icon-color-hovered: #fff;
@@ -72,12 +115,12 @@ html {
        Override them programmatically by injecting `kSurfaceTokens`
        and writing to the refs (a future settings UI will wire here). */
     --surface-radius: 16px;                                              /* matches Vuetify `rounded="xl"` */
-    --surface-border: 1px solid rgba(255, 255, 255, 0.16);
-    --surface-shadow: 0 20px 48px -8px rgba(0, 0, 0, 0.50), inset 0 1px 1px 0 rgba(255, 255, 255, 0.22);
+    --surface-border: 1px solid rgba(255, 255, 255, 0.18);
+    --surface-shadow: 0 20px 48px -8px rgba(0, 0, 0, 0.55), inset 0 1px 1px 0 rgba(255, 255, 255, 0.25);
 
     /* Apple frosted-glass background shared by dialogs, menus and popovers. */
-    --surface-bg: rgba(15, 23, 42, 0.68);
-    --surface-blur: 28px;
+    --surface-bg: rgba(15, 23, 42, 0.70);
+    --surface-blur: 32px;
 
     /* Menu-only: inner padding + list-item radius (dialogs don't share). */
     --surface-menu-padding: 6px;
@@ -92,15 +135,15 @@ html {
     --card-subsection-radius: 12px;
     --card-item-radius: 10px;
     --card-subsection-elevation: 0;  /* Vuetify elevation prop number (read via JS, not CSS) */
-    --card-subsection-bg: rgba(15, 23, 42, 0.52);
-    --card-subsection-border: 1px solid rgba(255, 255, 255, 0.14);
+    --card-subsection-bg: rgba(15, 23, 42, 0.58);
+    --card-subsection-border: 1px solid rgba(255, 255, 255, 0.16);
 
     /* Row card — list rows (`.surface-card-row`). Same border-swap
        interaction as `.surface-card-clickable` but with the small
        item radius and no lift / shadow. */
-    --card-row-bg: rgba(15, 23, 42, 0.48);
-    --card-row-border: 1px solid rgba(255, 255, 255, 0.12);
-    --card-row-border-hover: 1px solid rgba(56, 189, 248, 0.55);
+    --card-row-bg: rgba(15, 23, 42, 0.52);
+    --card-row-border: 1px solid rgba(255, 255, 255, 0.14);
+    --card-row-border-hover: 1px solid rgba(56, 189, 248, 0.65);
     --card-row-active-scale: 0.98;
     --card-row-transition: border-color 0.2s ease, background-color 0.15s ease, transform 0.1s ease;
     --card-bg: transparent;          /* let Vuetify's surface color show through */
@@ -109,8 +152,8 @@ html {
     /* Frosted info panels — the `.surface-panel` utility class.
        Padding is left to callsites (some panels host lists w/ their own). */
     --panel-radius: 24px;
-    --panel-bg: rgba(15, 23, 42, 0.50);
-    --panel-border: 1px solid rgba(255, 255, 255, 0.14);
+    --panel-bg: rgba(15, 23, 42, 0.55);
+    --panel-border: 1px solid rgba(255, 255, 255, 0.16);
 
     /* Prominent cards (store detail / large feature). */
     --card-prominent-radius: 24px;
@@ -121,12 +164,12 @@ html {
        Store-style tile language is the default. Pair with inner UnoCSS
        atomics if a specific tile needs a different padding / layout. */
     --card-clickable-radius: 24px;
-    --card-clickable-bg: rgba(15, 23, 42, 0.52);
-    --card-clickable-border: 1px solid rgba(255, 255, 255, 0.14);
-    --card-clickable-border-hover: 1px solid rgba(56, 189, 248, 0.55);
+    --card-clickable-bg: rgba(15, 23, 42, 0.58);
+    --card-clickable-border: 1px solid rgba(255, 255, 255, 0.16);
+    --card-clickable-border-hover: 1px solid rgba(56, 189, 248, 0.65);
     --card-clickable-shadow-hover: 0 16px 36px -8px rgba(0, 0, 0, 0.45),
-                                    0 0 20px rgba(56, 189, 248, 0.22),
-                                    inset 0 1px 1px 0 rgba(255, 255, 255, 0.28);
+                                    0 0 24px rgba(56, 189, 248, 0.28),
+                                    inset 0 1px 1px 0 rgba(255, 255, 255, 0.32);
     --card-clickable-lift: -4px;
     --card-clickable-active-scale: 0.98;
     --card-clickable-transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
@@ -265,6 +308,7 @@ html ::-webkit-scrollbar {
     border-radius: var(--surface-dialog-radius);
     border: var(--surface-border);
     box-shadow: var(--surface-shadow);
+    animation: dialogGlassBloom 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .surface-dialog-shell {
@@ -274,6 +318,20 @@ html ::-webkit-scrollbar {
     border-radius: var(--surface-dialog-radius);
     border: var(--surface-border);
     box-shadow: var(--surface-shadow);
+    animation: dialogGlassBloom 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes dialogGlassBloom {
+  0% {
+    opacity: 0;
+    transform: scale(0.94) translateY(12px);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0px);
+  }
 }
 
 .surface-rounded-item {
@@ -833,4 +891,72 @@ a {
    theme's surface contrast like other Vuetify dividers. */
 .v-chip--variant-outlined {
   border-color: rgba(var(--v-border-color), var(--v-border-opacity)) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Aesthetic Precision Frost & Aurora Gaming Cursor
+   ══════════════════════════════════════════════════════════════ */
+html, body, #app, .v-application {
+  cursor: url("data:image/svg+xml,%3Csvg width='22' height='22' viewBox='0 0 22 22' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L8.5 20L11.8 12.5L19.5 9.2L1 1Z' fill='%230284c7' stroke='%230f172a' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M2.4 2.4L8.2 16.8L10.8 11.2L16.4 8.6L2.4 2.4Z' fill='%2338bdf8'/%3E%3Cpath d='M3 3L8 14L10 10.5L13.5 8.5L3 3Z' fill='%23ffffff'/%3E%3C/svg%3E") 0 0, auto !important;
+}
+
+a, button, [role="button"], .v-btn, .sidebar-notch-item, .sidebar-item, .surface-card-clickable, .surface-card-row, .clickable, .cursor-pointer {
+  cursor: url("data:image/svg+xml,%3Csvg width='22' height='22' viewBox='0 0 22 22' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L8.5 20L11.8 12.5L19.5 9.2L1 1Z' fill='%237c3aed' stroke='%230f172a' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M2.4 2.4L8.2 16.8L10.8 11.2L16.4 8.6L2.4 2.4Z' fill='%23c084fc'/%3E%3Cpath d='M3 3L8 14L10 10.5L13.5 8.5L3 3Z' fill='%23ffffff'/%3E%3C/svg%3E") 0 0, pointer !important;
+}
+
+input, textarea, [contenteditable="true"] {
+  cursor: text !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Pure Frosted Glass Glow (Glowing on the Glass Surfaces)
+   ══════════════════════════════════════════════════════════════ */
+.liquid-glass,
+.frost-glass {
+  background: rgba(15, 23, 42, 0.65) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(56, 189, 248, 0.28) !important;
+  box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.55), 0 0 20px rgba(56, 189, 248, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.22) !important;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.liquid-glass:hover,
+.frost-glass:hover {
+  border-color: rgba(56, 189, 248, 0.90) !important;
+  box-shadow: 0 20px 48px -8px rgba(0, 0, 0, 0.60), 0 0 36px rgba(56, 189, 248, 0.55), 0 0 64px rgba(56, 189, 248, 0.25), inset 0 1px 2px 0 rgba(255, 255, 255, 0.35) !important;
+}
+
+/* Surface Subsections & Clickable Panels with Ambient Glass Glow */
+.surface-card-subsection {
+  border: 1px solid rgba(56, 189, 248, 0.22) !important;
+  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.40), 0 0 16px rgba(56, 189, 248, 0.10), inset 0 1px 1px 0 rgba(255, 255, 255, 0.18) !important;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.2s ease !important;
+}
+
+.surface-card-subsection:hover {
+  border-color: rgba(56, 189, 248, 0.85) !important;
+  box-shadow: 0 16px 44px -4px rgba(0, 0, 0, 0.55), 0 0 36px rgba(56, 189, 248, 0.50), 0 0 64px rgba(56, 189, 248, 0.25), inset 0 1px 2px 0 rgba(255, 255, 255, 0.35) !important;
+}
+
+.surface-panel {
+  border: 1px solid rgba(56, 189, 248, 0.22) !important;
+  box-shadow: 0 12px 36px -6px rgba(0, 0, 0, 0.45), 0 0 16px rgba(56, 189, 248, 0.10), inset 0 1px 1px 0 rgba(255, 255, 255, 0.18) !important;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.2s ease !important;
+}
+
+.surface-panel:hover {
+  border-color: rgba(56, 189, 248, 0.85) !important;
+  box-shadow: 0 20px 48px -8px rgba(0, 0, 0, 0.60), 0 0 36px rgba(56, 189, 248, 0.50), 0 0 64px rgba(56, 189, 248, 0.25), inset 0 1px 2px 0 rgba(255, 255, 255, 0.35) !important;
+}
+
+.surface-card-clickable {
+  border: 1px solid rgba(56, 189, 248, 0.24) !important;
+  box-shadow: 0 12px 36px -8px rgba(0, 0, 0, 0.45), 0 0 18px rgba(56, 189, 248, 0.12), inset 0 1px 1px 0 rgba(255, 255, 255, 0.20) !important;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.2s ease !important;
+}
+
+.surface-card-clickable:hover {
+  border-color: rgba(56, 189, 248, 0.90) !important;
+  box-shadow: 0 20px 48px -8px rgba(0, 0, 0, 0.60), 0 0 36px rgba(56, 189, 248, 0.55), 0 0 64px rgba(56, 189, 248, 0.25), inset 0 1px 2px 0 rgba(255, 255, 255, 0.40) !important;
 }

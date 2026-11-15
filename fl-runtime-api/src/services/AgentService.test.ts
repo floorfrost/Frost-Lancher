@@ -15,7 +15,7 @@ describe('agent provider settings', () => {
   test('uses the built-in XMCL provider by default', () => {
     expect(DEFAULT_AGENT_ENDPOINT).toBe('')
     expect(DEFAULT_AGENT_MODEL).toBe('')
-    expect(BUILTIN_AGENT_MODEL).toBe('xmcl-agent')
+    expect(BUILTIN_AGENT_MODEL).toBe('FL Agent')
   })
 
   test('external endpoints resolve to the custom provider', () => {

@@ -10,7 +10,7 @@
     <!-- This is to fix strange hover color issue... -->
     <router-view v-slot="{ Component }">
       <transition
-        name="fade-transition"
+        name="frost-page-zoom"
         mode="out-in"
         @after-enter="end"
         @leave="start"
