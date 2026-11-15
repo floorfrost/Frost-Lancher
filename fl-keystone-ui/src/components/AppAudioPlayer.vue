@@ -47,8 +47,11 @@ import { basename } from '@/util/basename'
 import { useLocalStorage, useMediaControls } from '@vueuse/core'
 import { kTheme } from '@/composables/theme'
 import { kInstanceLaunch } from '@/composables/instanceLaunch'
+import { useBackgroundMusic } from '@/composables/backgroundMusic'
 
 defineProps<{}>()
+
+const { registerAudioPlayer, setPlaying, setTitle, setUrl, setHasTracks, setVolume: syncVolume, setShuffle } = useBackgroundMusic()
 
 const { currentTheme } = injection(kTheme)
 const index = ref(0)
@@ -61,12 +64,56 @@ const { playing, volume, ended } = useMediaControls(audio)
 
 const shuffle = useLocalStorage('audioShuffle', false)
 
+function syncPlayerState() {
+  registerAudioPlayer({
+    audioElement: audio.value,
+    playing: playing.value,
+    hasTracks: currentBackgroundMusics.value.length > 0,
+    title: currentUrl.value ? basename(currentUrl.value, '/') : '',
+    url: currentUrl.value || '',
+    volume: volume.value,
+    shuffle: shuffle.value,
+    play: () => { playing.value = true; audio.value?.play() },
+    pause: () => { playing.value = false; audio.value?.pause() },
+    toggle: () => { play() },
+    next: () => { next() },
+    prev: () => { prev() },
+    setVolume: (v: number) => { volume.value = v },
+  })
+}
+
 onMounted(() => {
   playing.value = localStorage.getItem('audioPlaying') === 'true'
+  syncPlayerState()
 })
+
+watch(audio, () => {
+  syncPlayerState()
+})
+
+watch(currentBackgroundMusics, (musics) => {
+  setHasTracks(musics.length > 0)
+  syncPlayerState()
+}, { immediate: true })
+
+watch(currentUrl, (url) => {
+  setUrl(url || '')
+  setTitle(url ? basename(url, '/') : '')
+  syncPlayerState()
+}, { immediate: true })
 
 watch(playing, (v) => {
   localStorage.setItem('audioPlaying', v.toString())
+  setPlaying(v)
+})
+
+watch(volume, (v) => {
+  localStorage.setItem('audioVolume', v.toString())
+  syncVolume(v)
+})
+
+watch(shuffle, (s) => {
+  setShuffle(s)
 })
 
 const { gameProcesses } = injection(kInstanceLaunch)
