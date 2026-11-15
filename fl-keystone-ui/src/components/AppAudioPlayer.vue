@@ -47,11 +47,8 @@ import { basename } from '@/util/basename'
 import { useLocalStorage, useMediaControls } from '@vueuse/core'
 import { kTheme } from '@/composables/theme'
 import { kInstanceLaunch } from '@/composables/instanceLaunch'
-import { useBackgroundMusic } from '@/composables/backgroundMusic'
 
 defineProps<{}>()
-
-const { registerAudioElement, setPlayingState, setHasTracks, setTrackTitle } = useBackgroundMusic()
 
 const { currentTheme } = injection(kTheme)
 const index = ref(0)
@@ -64,31 +61,12 @@ const { playing, volume, ended } = useMediaControls(audio)
 
 const shuffle = useLocalStorage('audioShuffle', false)
 
-watch(currentBackgroundMusics, (musics) => {
-  setHasTracks(musics.length > 0)
-}, { immediate: true })
-
-watch(currentUrl, (url) => {
-  if (url) {
-    setTrackTitle(basename(url, '/'))
-  } else {
-    setTrackTitle('')
-  }
-}, { immediate: true })
-
-watch(audio, (el) => {
-  if (el) registerAudioElement(el)
-})
-
 onMounted(() => {
-  if (audio.value) registerAudioElement(audio.value)
   playing.value = localStorage.getItem('audioPlaying') === 'true'
-  setPlayingState(playing.value)
 })
 
 watch(playing, (v) => {
   localStorage.setItem('audioPlaying', v.toString())
-  setPlayingState(v)
 })
 
 const { gameProcesses } = injection(kInstanceLaunch)

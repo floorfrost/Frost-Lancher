@@ -12,10 +12,7 @@
       <canvas
         ref="canvasRef"
         class="character-canvas"
-        :class="{
-          'gojo-active-canvas': selectedAnimation === 'gojo',
-          'alok-active-canvas': selectedAnimation === 'alok',
-        }"
+        :class="{ 'gojo-active-canvas': selectedAnimation === 'gojo' }"
       />
     </div>
 
@@ -26,67 +23,6 @@
       aria-hidden="true"
     >
       <div class="divine-aura-glow" />
-    </div>
-
-    <!-- DJ Alok Audio Visualizer Field (Active only when Alok is selected and background song is playing) -->
-    <div
-      v-else-if="selectedAnimation === 'alok' && isMusicPlaying"
-      class="alok-visualizer-field pointer-events-none absolute inset-0 flex items-center justify-center overflow-visible"
-      aria-hidden="true"
-    >
-      <!-- 1. Background Equalizer Cityscape / Skyline Columns (like in reference image) -->
-      <div class="alok-city-equalizer">
-        <div
-          v-for="(height, i) in frequencyBars"
-          :key="'bar-' + i"
-          class="eq-column"
-          :style="{
-            height: `${Math.max(14, height * 135)}px`,
-            opacity: 0.45 + height * 0.5,
-          }"
-        />
-      </div>
-
-      <!-- 2. Neon Floor Pulse Ring / Bass Shockwave -->
-      <div class="alok-floor-ring ring-bass" :style="{ transform: `scale(${1 + beatPulse * 0.28})` }" />
-      <div class="alok-floor-ring ring-mid" />
-      <div class="alok-floor-ring ring-outer" />
-
-      <!-- 3. Holographic Waist Visualizer Ring in 3D Perspective -->
-      <div class="alok-waist-disc" :style="{ transform: `rotateX(72deg) scale(${1 + beatPulse * 0.12})` }">
-        <div class="waist-ring-glow" />
-        <div class="waist-ring-inner" />
-        <!-- Radial Equalizer Frequency Spikes around the waist -->
-        <div
-          v-for="(height, i) in frequencyBars"
-          :key="'spike-' + i"
-          class="waist-frequency-spike"
-          :style="{
-            transform: `rotate(${i * (360 / 32)}deg) translateY(-105px)`,
-            height: `${Math.max(8, height * 42)}px`,
-            opacity: 0.6 + height * 0.4,
-          }"
-        />
-      </div>
-
-      <!-- 4. Cyber Beat Core Ambient Aura -->
-      <div
-        class="alok-core-aura"
-        :style="{
-          opacity: 0.4 + beatPulse * 0.6,
-          transform: `scale(${1 + beatPulse * 0.25})`,
-        }"
-      />
-
-      <!-- 5. Floating Cyber Sparks & Audio Data Bits -->
-      <div class="cyber-spark s1" />
-      <div class="cyber-spark s2" />
-      <div class="cyber-spark s3" />
-      <div class="cyber-spark s4" />
-      <div class="cyber-spark s5" />
-      <div class="cyber-spark s6" />
-      <div class="cyber-spark s7" />
-      <div class="cyber-spark s8" />
     </div>
 
     <!-- Wind & Air Draft Field (Valorant Jett Updraft/Float Style) -->
@@ -275,48 +211,6 @@
         <div class="sun-bokeh-mote b12" />
       </div>
     </Teleport>
-
-    <!-- Notice when DJ Alok is selected but background music is NOT playing -->
-    <transition name="notice-fade">
-      <div
-        v-if="selectedAnimation === 'alok' && !isMusicPlaying"
-        class="alok-music-notice pointer-events-auto absolute bottom-4 z-20 flex flex-col items-center px-4 py-3 rounded-2xl select-none"
-        @click.stop
-      >
-        <div class="notice-neon-backdrop" />
-        <div class="relative z-10 flex items-center gap-1.5 mb-1">
-          <v-icon color="#fb7185" size="18">music_off</v-icon>
-          <span class="text-xs font-bold tracking-wider text-rose-300 uppercase">Background Song Required</span>
-        </div>
-        <p class="relative z-10 text-[11px] text-center text-slate-300 max-w-[260px] leading-snug mb-2.5">
-          Turn on background music to activate DJ Alok beat animation & audio visualizer.
-        </p>
-        <div class="relative z-10 flex items-center gap-2">
-          <v-btn
-            v-if="hasMusicTracks"
-            size="x-small"
-            color="primary"
-            variant="flat"
-            class="font-bold px-3.5 text-xs shadow-lg shadow-cyan-500/30"
-            prepend-icon="play_arrow"
-            @click.stop="playMusic"
-          >
-            Play Song Now
-          </v-btn>
-          <v-btn
-            v-else
-            size="x-small"
-            color="primary"
-            variant="flat"
-            class="font-bold px-3.5 text-xs shadow-lg shadow-purple-500/30"
-            prepend-icon="library_music"
-            @click.stop="openAppearanceSettings"
-          >
-            Add Background Music
-          </v-btn>
-        </div>
-      </div>
-    </transition>
   </div>
 </template>
 
@@ -329,7 +223,6 @@ import { injection } from '@/util/inject'
 import { kUserContext } from '@/composables/user'
 import { useUserSkin } from '@/composables/userSkin'
 import { useSkinAnimation } from '@/composables/userSkinAnimation'
-import { useBackgroundMusic } from '@/composables/backgroundMusic'
 import steveSkin from '@/assets/steve_skin.png'
 
 const { t } = useI18n()
@@ -337,18 +230,11 @@ const router = useRouter()
 const wrapperRef = ref<HTMLElement | null>(null)
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 let viewer: SkinViewer | undefined
-let customAnim: (JettFloatingAnimation | GojoFloatingAnimation | AlokBeatAnimation) | undefined
+let customAnim: (JettFloatingAnimation | GojoFloatingAnimation) | undefined
 let sunLight: DirectionalLight | undefined
 let rimLight: DirectionalLight | undefined
-let neonCyanLight: DirectionalLight | undefined
-let neonMagentaLight: DirectionalLight | undefined
 
 const { selectedAnimation } = useSkinAnimation()
-const { isMusicPlaying, hasMusicTracks, frequencyBars, beatPulse, play: playMusic } = useBackgroundMusic()
-
-function openAppearanceSettings() {
-  router.push('/setting/appearance')
-}
 
 const { userProfile, gameProfile } = injection(kUserContext)
 const userId = computed(() => userProfile.value?.id || '')
@@ -475,82 +361,6 @@ class GojoFloatingAnimation extends PlayerAnimation {
   }
 }
 
-/**
- * DJ Alok "Drop the Beat" Emote & Audio-Reactive Dance Animation
- * Inspired by Free Fire DJ Alok iconic stance with arms spread wide, rhythmic bounce & head bob
- */
-class AlokBeatAnimation extends PlayerAnimation {
-  isHovered: boolean = false
-  isPlaying: boolean = false
-
-  protected animate(player: PlayerObject): void {
-    const t = this.progress
-
-    if (!this.isPlaying) {
-      // Idle DJ Stance (Waiting for song to start)
-      const breath = Math.sin(t * 1.5) * 0.35
-      player.position.y = breath
-      player.position.x = 0
-      player.rotation.set(0, 0, 0)
-
-      player.skin.head.rotation.set(-0.04, Math.sin(t * 0.8) * 0.05, 0)
-      player.skin.rightArm.rotation.set(0.1, 0, -0.32)
-      player.skin.leftArm.rotation.set(0.1, 0, 0.32)
-      player.skin.rightLeg.rotation.set(0.04, 0, 0.08)
-      player.skin.leftLeg.rotation.set(-0.04, 0, -0.08)
-
-      player.skin.head.position.set(0, 0, 0)
-      player.skin.body.position.set(0, -6, 0)
-      player.skin.rightLeg.position.set(-1.9, -12, -0.1)
-      player.skin.leftLeg.position.set(1.9, -12, -0.1)
-      return
-    }
-
-    // ACTIVE: DJ Alok "Drop the Beat" Emote!
-    const speed = this.isHovered ? 4.8 : 4.0 // ~128 BPM electronic tempo
-    const bounce = Math.abs(Math.sin(t * speed)) * 1.6
-    player.position.y = bounce - 0.8
-
-    // Rhythmic body groove & lateral sway
-    const groove = Math.sin(t * (speed * 0.5))
-    player.position.x = groove * 0.7
-    player.rotation.z = groove * 0.06
-    player.rotation.y = groove * 0.1
-    player.rotation.x = -0.05
-
-    // Head bobbing with the beat
-    player.skin.head.rotation.x = -0.12 + Math.sin(t * speed) * 0.14
-    player.skin.head.rotation.y = Math.sin(t * (speed * 0.5)) * 0.08
-    player.skin.head.rotation.z = Math.sin(t * (speed * 0.5)) * 0.04
-
-    // Iconic DJ Alok Arms: spread wide & high (\o/), pumping with the music
-    const armPump = Math.sin(t * speed) * 0.16
-    player.skin.rightArm.rotation.x = -0.42 + armPump * 0.5
-    player.skin.rightArm.rotation.z = -1.25 - armPump
-    player.skin.leftArm.rotation.x = -0.42 + armPump * 0.5
-    player.skin.leftArm.rotation.z = 1.25 + armPump
-
-    // Athletic stance with bouncing knees
-    const legBounce = Math.sin(t * speed) * 0.08
-    player.skin.rightLeg.rotation.x = -0.22 + legBounce
-    player.skin.rightLeg.rotation.z = 0.14
-    player.skin.leftLeg.rotation.x = 0.22 - legBounce
-    player.skin.leftLeg.rotation.z = -0.14
-
-    player.skin.head.position.set(0, 0, 0)
-    player.skin.body.position.set(0, -6, 0)
-    player.skin.rightLeg.position.set(-1.9, -12, -0.1)
-    player.skin.leftLeg.position.set(1.9, -12, -0.1)
-
-    // Interactive Hover: hype up arms even higher
-    if (this.isHovered) {
-      player.skin.rightArm.rotation.z = -1.65 + Math.sin(t * 8) * 0.2
-      player.skin.leftArm.rotation.z = 1.65 - Math.sin(t * 8) * 0.2
-      player.position.y += 0.8
-    }
-  }
-}
-
 function updateCameraFraming() {
   if (!viewer) return
   const width = wrapperRef.value?.clientWidth || 540
@@ -568,7 +378,7 @@ function updateCameraFraming() {
   // In skinview3d, player model center is at Y = 0 (head at +16, feet at -16).
   // Target Y = -2 / -2.5 places the model center slightly elevated above canvas center,
   // floating gracefully in the upper-mid area without clipping the head.
-  const targetY = selectedAnimation.value === 'gojo' ? -2.5 : selectedAnimation.value === 'alok' ? -1.8 : -2
+  const targetY = selectedAnimation.value === 'gojo' ? -2.5 : -2
 
   viewer.camera.fov = fov
   viewer.camera.updateProjectionMatrix()
@@ -586,8 +396,6 @@ function updateCameraFraming() {
 function updateLighting() {
   if (!viewer) return
   if (selectedAnimation.value === 'gojo') {
-    if (neonCyanLight) neonCyanLight.visible = false
-    if (neonMagentaLight) neonMagentaLight.visible = false
     if (!sunLight) {
       // Main overhead warm sunlight
       sunLight = new DirectionalLight(0xfff7d6, 3.2)
@@ -605,29 +413,9 @@ function updateLighting() {
 
     viewer.globalLight.color.setHex(0xfffaed)
     viewer.globalLight.intensity = 2.4
-  } else if (selectedAnimation.value === 'alok') {
-    if (sunLight) sunLight.visible = false
-    if (rimLight) rimLight.visible = false
-    if (!neonCyanLight) {
-      neonCyanLight = new DirectionalLight(0x00f0ff, 2.5)
-      neonCyanLight.position.set(-35, 30, 25)
-      ;(viewer.scene as any).add(neonCyanLight)
-    }
-    if (!neonMagentaLight) {
-      neonMagentaLight = new DirectionalLight(0xd946ef, 2.2)
-      neonMagentaLight.position.set(35, 25, -20)
-      ;(viewer.scene as any).add(neonMagentaLight)
-    }
-    const active = isMusicPlaying.value
-    neonCyanLight.visible = active
-    neonMagentaLight.visible = active
-    viewer.globalLight.color.setHex(active ? 0x1e1b4b : 0xffffff)
-    viewer.globalLight.intensity = active ? 2.8 : 3.0
   } else {
     if (sunLight) sunLight.visible = false
     if (rimLight) rimLight.visible = false
-    if (neonCyanLight) neonCyanLight.visible = false
-    if (neonMagentaLight) neonMagentaLight.visible = false
     viewer.globalLight.color.setHex(0xffffff)
     viewer.globalLight.intensity = 3.0
   }
@@ -637,10 +425,6 @@ function applyAnimation() {
   if (!viewer) return
   if (selectedAnimation.value === 'gojo') {
     customAnim = new GojoFloatingAnimation()
-  } else if (selectedAnimation.value === 'alok') {
-    const alokAnim = new AlokBeatAnimation()
-    alokAnim.isPlaying = isMusicPlaying.value
-    customAnim = alokAnim
   } else {
     customAnim = new JettFloatingAnimation()
   }
@@ -707,13 +491,6 @@ function onClick() {
 
 watch(selectedAnimation, () => {
   applyAnimation()
-})
-
-watch(isMusicPlaying, (playing) => {
-  if (customAnim instanceof AlokBeatAnimation) {
-    customAnim.isPlaying = playing
-  }
-  updateLighting()
 })
 
 watch([activeSkinUrl, activeSlim, activeCapeUrl], async () => {
@@ -1205,228 +982,5 @@ onUnmounted(() => {
     transform: translateY(100px) translateX(15px) scale(0.5);
     opacity: 0;
   }
-}
-
-/* ========================================================
-   DJ ALOK "DROP THE BEAT" AUDIO-REACTIVE VISUALIZER STYLES
-   ======================================================== */
-.alok-active-canvas {
-  filter: drop-shadow(0 0 20px rgba(0, 240, 255, 0.45)) drop-shadow(0 0 40px rgba(217, 70, 239, 0.35));
-}
-
-.alok-visualizer-field {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: visible;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Background Cyber Equalizer Skyline */
-.alok-city-equalizer {
-  position: absolute;
-  bottom: 110px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 360px;
-  height: 150px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 3px;
-  z-index: 2;
-  opacity: 0.85;
-  mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 40%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 40%, transparent 100%);
-}
-
-.eq-column {
-  flex: 1;
-  min-width: 4px;
-  border-radius: 3px 3px 0 0;
-  background: linear-gradient(to top, rgba(168, 85, 247, 0.4) 0%, rgba(56, 189, 248, 0.85) 60%, #ffffff 100%);
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.65), 0 0 20px rgba(168, 85, 247, 0.4);
-  transition: height 0.08s cubic-bezier(0.1, 0.7, 0.3, 1), opacity 0.08s ease;
-}
-
-/* Floor Rings & Neon Audio Ripple */
-.alok-floor-ring {
-  position: absolute;
-  bottom: 80px;
-  left: 50%;
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.ring-bass {
-  width: 260px;
-  height: 75px;
-  margin-left: -130px;
-  border: 2px solid #00f0ff;
-  box-shadow: 0 0 30px rgba(0, 240, 255, 0.9), inset 0 0 25px rgba(0, 240, 255, 0.5);
-  transition: transform 0.08s cubic-bezier(0.1, 0.8, 0.3, 1);
-}
-
-.ring-mid {
-  width: 320px;
-  height: 92px;
-  margin-left: -160px;
-  border: 1.5px dashed rgba(217, 70, 239, 0.75);
-  box-shadow: 0 0 20px rgba(217, 70, 239, 0.6);
-  animation: spinRing 20s linear infinite;
-}
-
-.ring-outer {
-  width: 380px;
-  height: 110px;
-  margin-left: -190px;
-  border: 1px solid rgba(56, 189, 248, 0.4);
-  animation: pulseOuterRing 3s ease-in-out infinite;
-}
-
-@keyframes spinRing {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes spinRingReverse {
-  from { transform: rotate(360deg); }
-  to { transform: rotate(0deg); }
-}
-
-@keyframes pulseOuterRing {
-  0%, 100% { opacity: 0.3; transform: scale(0.96); }
-  50% { opacity: 0.75; transform: scale(1.04); }
-}
-
-/* Holographic Waist Disc & Equalizer Ring */
-.alok-waist-disc {
-  position: absolute;
-  top: 48%;
-  left: 50%;
-  width: 220px;
-  height: 220px;
-  margin-left: -110px;
-  margin-top: -110px;
-  transform-style: preserve-3d;
-  pointer-events: none;
-  z-index: 12;
-  transition: transform 0.08s cubic-bezier(0.1, 0.8, 0.3, 1);
-}
-
-.waist-ring-glow {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 3px solid #00f0ff;
-  box-shadow: 0 0 22px #00f0ff, 0 0 45px rgba(217, 70, 239, 0.7), inset 0 0 16px #00f0ff;
-}
-
-.waist-ring-inner {
-  position: absolute;
-  inset: 12px;
-  border-radius: 50%;
-  border: 1.5px dashed rgba(255, 255, 255, 0.9);
-  animation: spinRingReverse 12s linear infinite;
-}
-
-.waist-frequency-spike {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 3px;
-  margin-left: -1.5px;
-  border-radius: 2px;
-  background: linear-gradient(to top, #d946ef, #00f0ff, #ffffff);
-  box-shadow: 0 0 8px #00f0ff, 0 0 14px rgba(217, 70, 239, 0.6);
-  transform-origin: bottom center;
-  transition: height 0.06s cubic-bezier(0.1, 0.7, 0.3, 1), opacity 0.06s ease;
-}
-
-/* Core Beat Ambient Aura */
-.alok-core-aura {
-  position: absolute;
-  top: 46%;
-  left: 50%;
-  width: 190px;
-  height: 190px;
-  margin-left: -95px;
-  margin-top: -95px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(217, 70, 239, 0.4) 0%, rgba(0, 240, 255, 0.25) 45%, transparent 70%);
-  filter: blur(16px);
-  z-index: 5;
-  pointer-events: none;
-  transition: transform 0.08s cubic-bezier(0.1, 0.8, 0.3, 1), opacity 0.08s ease;
-}
-
-/* Cyber Floating Sparks */
-.cyber-spark {
-  position: absolute;
-  border-radius: 50%;
-  background: #00f0ff;
-  box-shadow: 0 0 8px #00f0ff, 0 0 16px #d946ef;
-  pointer-events: none;
-  animation: sparkDrift infinite cubic-bezier(0.4, 0, 0.6, 1);
-}
-
-.s1 { width: 4px; height: 4px; left: 35%; top: 40%; animation-duration: 3.2s; animation-delay: 0s; }
-.s2 { width: 6px; height: 6px; left: 62%; top: 46%; animation-duration: 4.1s; animation-delay: 0.5s; background: #d946ef; }
-.s3 { width: 3px; height: 3px; left: 45%; top: 55%; animation-duration: 2.8s; animation-delay: 1.0s; }
-.s4 { width: 5px; height: 5px; left: 25%; top: 50%; animation-duration: 3.6s; animation-delay: 1.5s; background: #ffffff; }
-.s5 { width: 4px; height: 4px; left: 70%; top: 38%; animation-duration: 3.9s; animation-delay: 0.8s; }
-.s6 { width: 7px; height: 7px; left: 52%; top: 35%; animation-duration: 4.5s; animation-delay: 1.8s; background: #d946ef; }
-.s7 { width: 3px; height: 3px; left: 40%; top: 60%; animation-duration: 3.0s; animation-delay: 0.3s; }
-.s8 { width: 5px; height: 5px; left: 58%; top: 58%; animation-duration: 3.7s; animation-delay: 1.2s; background: #00f0ff; }
-
-@keyframes sparkDrift {
-  0% { transform: translateY(15px) scale(0.6); opacity: 0; }
-  30% { opacity: 1; transform: translateY(0) scale(1.1); }
-  70% { opacity: 0.8; transform: translateY(-25px) scale(0.9); }
-  100% { transform: translateY(-50px) scale(0.4); opacity: 0; }
-}
-
-/* Notice Card when Background Music is Not Playing */
-.alok-music-notice {
-  position: absolute;
-  bottom: 18px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 48px);
-  max-width: 320px;
-  border-radius: 16px;
-  background: rgba(15, 23, 42, 0.92);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(244, 63, 94, 0.45);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 24px rgba(244, 63, 94, 0.3);
-  z-index: 25;
-}
-
-.notice-neon-backdrop {
-  position: absolute;
-  inset: -2px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, rgba(244, 63, 94, 0.35), rgba(168, 85, 247, 0.25), rgba(56, 189, 248, 0.2));
-  filter: blur(8px);
-  z-index: -1;
-  animation: neonBorderPulse 3s ease-in-out infinite;
-}
-
-@keyframes neonBorderPulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
-
-.notice-fade-enter-active,
-.notice-fade-leave-active {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.notice-fade-enter-from,
-.notice-fade-leave-to {
-  opacity: 0;
-  transform: translate(-50%, 12px) scale(0.95);
 }
 </style>
