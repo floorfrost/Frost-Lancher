@@ -17,21 +17,18 @@
     <transition name="fade-transition">
       <div
         key="launch-button-group"
-        class="flex items-end justify-end overflow-visible home-launch-group"
+        class="flex items-center justify-end overflow-visible home-launch-group"
         v-if="!isInFocusMode || !(router.currentRoute.value.path === '/')"
       >
         <HomeLaunchButtonStatus
-          class="mb-2"
           :active="active"
         />
-        <div class="flex flex-col items-end gap-2 ml-4">
-          <HomeMusicController :compact="compact" />
-          <HomeLaunchButton
-            :compact="compact"
-            @mouseenter="active = true"
-            @mouseleave="active = false"
-          />
-        </div>
+        <HomeLaunchButton
+          class="ml-4"
+          :compact="compact"
+          @mouseenter="active = true"
+          @mouseleave="active = false"
+        />
       </div>
     </transition>
   </div>
@@ -47,7 +44,6 @@ import { useInFocusMode } from '@/composables/uiLayout'
 import { injection } from '@/util/inject'
 import HomeLaunchButton from './HomeLaunchButton.vue'
 import HomeLaunchButtonStatus from './HomeLaunchButtonStatus.vue'
-import HomeMusicController from './HomeMusicController.vue'
 
 const { instance, runtime: version } = injection(kInstance)
 const { versionHeader } = injection(kInstanceVersion)
