@@ -340,10 +340,12 @@ import { PlayerAnimation, PlayerObject, SkinViewer } from 'skinview3d'
 import {
   AdditiveBlending,
   BoxGeometry,
+  BufferGeometry,
   CanvasTexture,
   CylinderGeometry,
   DirectionalLight,
   DoubleSide,
+  Float32BufferAttribute,
   Group,
   Mesh,
   MeshBasicMaterial,
@@ -563,8 +565,111 @@ function getRealisticEmberTexture(): CanvasTexture {
   return emberTexCache
 }
 
+function buildRazorBladeGeometries(): {
+  spineGeo: BufferGeometry
+  edgeGeo: BufferGeometry
+} {
+  const slices = 14
+  const startY = 1.0
+  const endY = 17.5
+  const tipY = 20.0
+
+  const spinePositions: number[] = []
+  const spineIndices: number[] = []
+
+  const edgePositions: number[] = []
+  const edgeIndices: number[] = []
+
+  for (let i = 0; i <= slices; i++) {
+    const s = i / slices
+    const y = startY + (endY - startY) * s
+    const zCurve = -0.55 * Math.pow(s, 1.3)
+    const w = 1.05 - 0.28 * s
+    const t = 0.22 - 0.09 * s
+
+    const ml = [-t * 0.35, y, zCurve - w * 0.45]
+    const mr = [t * 0.35, y, zCurve - w * 0.45]
+    const sl = [-t * 0.5, y, zCurve - w * 0.05]
+    const sr = [t * 0.5, y, zCurve - w * 0.05]
+    const edge = [0.0, y, zCurve + w * 0.55]
+
+    spinePositions.push(...ml, ...mr, ...sl, ...sr)
+    edgePositions.push(...sl, ...sr, ...edge)
+
+    if (i < slices) {
+      const b0 = i * 4
+      const b1 = (i + 1) * 4
+
+      spineIndices.push(b0 + 0, b0 + 1, b1 + 1)
+      spineIndices.push(b0 + 0, b1 + 1, b1 + 0)
+
+      spineIndices.push(b0 + 2, b0 + 0, b1 + 0)
+      spineIndices.push(b0 + 2, b1 + 0, b1 + 2)
+
+      spineIndices.push(b0 + 1, b0 + 3, b1 + 3)
+      spineIndices.push(b0 + 1, b1 + 3, b1 + 1)
+
+      const e0 = i * 3
+      const e1 = (i + 1) * 3
+
+      edgeIndices.push(e0 + 0, e1 + 0, e1 + 2)
+      edgeIndices.push(e0 + 0, e1 + 2, e0 + 2)
+
+      edgeIndices.push(e0 + 1, e0 + 2, e1 + 2)
+      edgeIndices.push(e0 + 1, e1 + 2, e1 + 1)
+    }
+  }
+
+  // Bottom caps at Habaki collar
+  spineIndices.push(0, 2, 1)
+  spineIndices.push(1, 2, 3)
+  edgeIndices.push(0, 1, 2)
+
+  // Japanese Kissaki (needle chisel tip)
+  const lastSlice = slices
+  const sLast = 1.0
+  const zCurveLast = -0.55 * Math.pow(sLast, 1.3)
+  const wLast = 1.05 - 0.28 * sLast
+
+  const tipRidge = [0.0, tipY - 0.4, zCurveLast - wLast * 0.1]
+  const spineTipIdx = spinePositions.length / 3
+  spinePositions.push(...tipRidge)
+
+  const sbLast = lastSlice * 4
+  spineIndices.push(sbLast + 0, sbLast + 1, spineTipIdx)
+  spineIndices.push(sbLast + 2, sbLast + 0, spineTipIdx)
+  spineIndices.push(sbLast + 1, sbLast + 3, spineTipIdx)
+
+  const needleTip = [0.0, tipY, zCurveLast + wLast * 0.45]
+  const edgeTipIdx = edgePositions.length / 3
+  edgePositions.push(...needleTip)
+
+  const edgeRidgeIdx = edgePositions.length / 3
+  edgePositions.push(...tipRidge)
+
+  const ebLast = lastSlice * 3
+  edgeIndices.push(ebLast + 0, edgeRidgeIdx, edgeTipIdx)
+  edgeIndices.push(ebLast + 2, ebLast + 0, edgeTipIdx)
+
+  edgeIndices.push(edgeRidgeIdx, ebLast + 1, edgeTipIdx)
+  edgeIndices.push(ebLast + 1, ebLast + 2, edgeTipIdx)
+
+  const spineGeo = new BufferGeometry()
+  spineGeo.setAttribute('position', new Float32BufferAttribute(spinePositions, 3))
+  spineGeo.setIndex(spineIndices)
+  spineGeo.computeVertexNormals()
+
+  const edgeGeo = new BufferGeometry()
+  edgeGeo.setAttribute('position', new Float32BufferAttribute(edgePositions, 3))
+  edgeGeo.setIndex(edgeIndices)
+  edgeGeo.computeVertexNormals()
+
+  return { spineGeo, edgeGeo }
+}
+
 function buildNichirinKatana(): {
   katanaGroup: Group
+  sheathMesh: Mesh
   flameMeshes: Mesh[]
   embers: Mesh[]
   spiralMesh1: Mesh
@@ -656,58 +761,30 @@ function buildNichirinKatana(): {
   habakiMesh.position.set(0, 1.0, 0)
   katana.add(habakiMesh)
 
-  // 3. Nichirin Blade (Curved Shinogi-Zukuri Mastercrafted Katana)
-  const bladeSegments = 5
-  const segmentLength = 3.8
-  const totalLength = bladeSegments * segmentLength
+  // 3. Nichirin Razor Blade (Japanese Shinogi-Zukuri with Knife Edge & Chisel Tip)
+  const { spineGeo, edgeGeo } = buildRazorBladeGeometries()
 
   const spineMat = new MeshStandardMaterial({
-    color: 0x0c0d11,
-    metalness: 0.96,
-    roughness: 0.14,
-    emissive: 0x1f0600,
-    emissiveIntensity: 0.4,
+    color: 0x0c0e14, // deep obsidian black folded Nichirin steel
+    metalness: 0.98,
+    roughness: 0.16,
+    emissive: 0x220500,
+    emissiveIntensity: 0.35,
   })
+  const spineMesh = new Mesh(spineGeo, spineMat)
+  katana.add(spineMesh)
+
   const edgeMat = new MeshStandardMaterial({
-    color: 0xff4500,
-    emissive: 0xff3300,
-    emissiveIntensity: 0.95,
-    metalness: 0.8,
-    roughness: 0.1,
+    color: 0xffffff, // mirror-polish razor silver cutting edge
+    metalness: 0.96,
+    roughness: 0.05,
+    emissive: 0xff3b00, // fiery Hamon wave temper glow
+    emissiveIntensity: 0.9,
   })
+  const edgeMesh = new Mesh(edgeGeo, edgeMat)
+  katana.add(edgeMesh)
 
-  // Curved segmented blade
-  let curY = 1.5
-  let curZ = 0.0
-  const soriAngle = -0.016 // subtle realistic curvature
-
-  for (let s = 0; s < bladeSegments; s++) {
-    // Spine (Mune)
-    const spineGeo = new BoxGeometry(0.34, segmentLength + 0.1, 1.1)
-    const spinePart = new Mesh(spineGeo, spineMat)
-    spinePart.position.set(0, curY + segmentLength / 2, curZ)
-    spinePart.rotation.x = s * soriAngle
-    katana.add(spinePart)
-
-    // Beveled fiery cutting edge (Ha & Hamon)
-    const edgeGeo = new BoxGeometry(0.38, segmentLength + 0.1, 0.4)
-    const edgePart = new Mesh(edgeGeo, edgeMat)
-    edgePart.position.set(0, curY + segmentLength / 2, curZ + 0.65)
-    edgePart.rotation.x = s * soriAngle
-    katana.add(edgePart)
-
-    curY += segmentLength * Math.cos(s * soriAngle)
-    curZ += segmentLength * Math.sin(s * soriAngle)
-  }
-
-  // Kissaki (Angled Japanese Katana Tip)
-  const tipGeo = new BoxGeometry(0.34, 2.2, 1.0)
-  const tipMesh = new Mesh(tipGeo, spineMat)
-  tipMesh.position.set(0, curY + 0.9, curZ - 0.15)
-  tipMesh.rotation.x = -0.38
-  katana.add(tipMesh)
-
-  // 4. Volumetric Hinokami Kagura Fire (Textured Additive Flame Planes)
+  // 4. Volumetric Hinokami Kagura Fire - 360-DEGREE FULL SWORD ENVELOPMENT
   const flameTex = getRealisticFlameTexture()
   const flameMeshes: Mesh[] = []
 
@@ -719,23 +796,73 @@ function buildNichirinKatana(): {
     depthWrite: false,
   })
 
-  // 10 textured flame planes positioned and angled along the blade edge
-  for (let i = 0; i < 10; i++) {
-    const flameGeo = new PlaneGeometry(2.6 + (i % 2) * 0.6, 5.0 + (i % 3) * 0.8)
-    const fMesh = new Mesh(flameGeo, flameMat)
-    const yPos = 3.0 + i * 1.7
-    fMesh.position.set(
-      (Math.random() - 0.5) * 0.3,
-      yPos,
-      0.65 + (Math.random() - 0.5) * 0.25,
-    )
-    fMesh.rotation.y = (Math.random() - 0.5) * 0.4
-    fMesh.rotation.z = -0.15 + (Math.random() - 0.5) * 0.2
+  // A. 360-Degree Cylindrical Fire Sheath (wraps entire sword in roaring inferno)
+  const sheathGeo = new CylinderGeometry(0.85, 1.45, 20.5, 16, 1, true)
+  const sheathMat = new MeshBasicMaterial({
+    map: flameTex,
+    transparent: true,
+    blending: AdditiveBlending,
+    side: DoubleSide,
+    depthWrite: false,
+    opacity: 0.85,
+  })
+  const sheathMesh = new Mesh(sheathGeo, sheathMat)
+  sheathMesh.position.set(0, 10.5, 0.1)
+  katana.add(sheathMesh)
+
+  // B. Multi-Zone Radial Flame Planes Covering Front, Back, Left, Right & Tip
+  // Zone 1: Cutting edge (front)
+  for (let i = 0; i < 7; i++) {
+    const fGeo = new PlaneGeometry(2.6 + (i % 2) * 0.5, 4.8 + (i % 3) * 0.8)
+    const fMesh = new Mesh(fGeo, flameMat)
+    fMesh.position.set(0, 2.8 + i * 2.3, 0.7 + (i % 2) * 0.15)
+    fMesh.rotation.z = -0.12
     katana.add(fMesh)
     flameMeshes.push(fMesh)
   }
 
-  // Twisting Helical Fire Spirals wrapping around blade
+  // Zone 2: Spine flames (back) - flame covering the back spine of the sword
+  for (let i = 0; i < 7; i++) {
+    const fGeo = new PlaneGeometry(2.4 + (i % 2) * 0.5, 4.5 + (i % 3) * 0.7)
+    const fMesh = new Mesh(fGeo, flameMat)
+    fMesh.position.set(0, 3.2 + i * 2.3, -0.48 - (i % 2) * 0.12)
+    fMesh.rotation.z = 0.15
+    fMesh.rotation.y = Math.PI
+    katana.add(fMesh)
+    flameMeshes.push(fMesh)
+  }
+
+  // Zone 3: Left flank flames (side) - flame covering left side
+  for (let i = 0; i < 5; i++) {
+    const fGeo = new PlaneGeometry(2.2 + (i % 2) * 0.4, 4.2 + (i % 2) * 0.6)
+    const fMesh = new Mesh(fGeo, flameMat)
+    fMesh.position.set(-0.45, 3.5 + i * 3.0, 0.1)
+    fMesh.rotation.y = -Math.PI / 2
+    katana.add(fMesh)
+    flameMeshes.push(fMesh)
+  }
+
+  // Zone 4: Right flank flames (side) - flame covering right side
+  for (let i = 0; i < 5; i++) {
+    const fGeo = new PlaneGeometry(2.2 + (i % 2) * 0.4, 4.2 + (i % 2) * 0.6)
+    const fMesh = new Mesh(fGeo, flameMat)
+    fMesh.position.set(0.45, 3.5 + i * 3.0, 0.1)
+    fMesh.rotation.y = Math.PI / 2
+    katana.add(fMesh)
+    flameMeshes.push(fMesh)
+  }
+
+  // Zone 5: Tip plumes (Kissaki needle tip upward)
+  for (let i = 0; i < 4; i++) {
+    const fGeo = new PlaneGeometry(3.2 + i * 0.4, 6.0 + i * 0.5)
+    const fMesh = new Mesh(fGeo, flameMat)
+    fMesh.position.set(0, 19.5 + i * 0.9, 0.3)
+    fMesh.rotation.y = (i * Math.PI) / 4
+    katana.add(fMesh)
+    flameMeshes.push(fMesh)
+  }
+
+  // C. Twisting Helical Fire Spirals wrapping around blade
   const spiralMat = new MeshBasicMaterial({
     map: flameTex,
     transparent: true,
@@ -744,18 +871,18 @@ function buildNichirinKatana(): {
     depthWrite: false,
     opacity: 0.85,
   })
-  const spiralGeo1 = new PlaneGeometry(3.2, 16.0)
+  const spiralGeo1 = new PlaneGeometry(3.6, 18.0)
   const spiralMesh1 = new Mesh(spiralGeo1, spiralMat)
-  spiralMesh1.position.set(0, 10.5, 0.3)
+  spiralMesh1.position.set(0, 10.5, 0.1)
   katana.add(spiralMesh1)
 
-  const spiralGeo2 = new PlaneGeometry(2.8, 14.0)
+  const spiralGeo2 = new PlaneGeometry(3.2, 16.0)
   const spiralMesh2 = new Mesh(spiralGeo2, spiralMat)
-  spiralMesh2.position.set(0, 11.5, 0.3)
+  spiralMesh2.position.set(0, 11.5, 0.1)
   spiralMesh2.rotation.y = Math.PI / 2
   katana.add(spiralMesh2)
 
-  // 5. Realistic Floating Fire Embers / Spark Cinders
+  // 5. Realistic Floating Fire Embers / Spark Cinders in 360-degree orbit
   const emberTex = getRealisticEmberTexture()
   const emberMat = new MeshBasicMaterial({
     map: emberTex,
@@ -766,13 +893,15 @@ function buildNichirinKatana(): {
   })
 
   const embers: Mesh[] = []
-  for (let i = 0; i < 18; i++) {
+  for (let i = 0; i < 24; i++) {
     const emberGeo = new PlaneGeometry(0.85, 0.85)
     const emberMesh = new Mesh(emberGeo, emberMat)
+    const angle = (i * Math.PI * 2) / 24
+    const rad = 1.2 + (i % 3) * 0.5
     emberMesh.position.set(
-      (Math.random() - 0.5) * 3.5,
-      2.0 + Math.random() * totalLength,
-      (Math.random() - 0.5) * 3.5 + 0.4,
+      Math.sin(angle) * rad,
+      2.0 + (i / 24) * 19.0,
+      Math.cos(angle) * rad + 0.1,
     )
     katana.add(emberMesh)
     embers.push(emberMesh)
@@ -785,7 +914,7 @@ function buildNichirinKatana(): {
     }
   })
 
-  return { katanaGroup: katana, flameMeshes, embers, spiralMesh1, spiralMesh2 }
+  return { katanaGroup: katana, sheathMesh, flameMeshes, embers, spiralMesh1, spiralMesh2 }
 }
 
 /**
@@ -795,6 +924,7 @@ function buildNichirinKatana(): {
 class SlayerFlameAnimation extends PlayerAnimation {
   isHovered: boolean = false
   katanaGroup: Group | null = null
+  sheathMesh: Mesh | null = null
   flameMeshes: Mesh[] = []
   embers: Mesh[] = []
   spiralMesh1: Mesh | null = null
@@ -812,6 +942,7 @@ class SlayerFlameAnimation extends PlayerAnimation {
 
     const built = buildNichirinKatana()
     this.katanaGroup = built.katanaGroup
+    this.sheathMesh = built.sheathMesh
     this.flameMeshes = built.flameMeshes
     this.embers = built.embers
     this.spiralMesh1 = built.spiralMesh1
@@ -829,6 +960,7 @@ class SlayerFlameAnimation extends PlayerAnimation {
     if (this.attachedPlayer && this.katanaGroup) {
       ;(this.attachedPlayer.skin.rightArm as any).remove(this.katanaGroup)
       this.katanaGroup = null
+      this.sheathMesh = null
       this.attachedPlayer = null
     }
   }
@@ -883,20 +1015,28 @@ class SlayerFlameAnimation extends PlayerAnimation {
     player.skin.rightLeg.position.set(-1.9, -12, -0.1)
     player.skin.leftLeg.position.set(1.9, -12, -0.1)
 
-    // 6. Dynamic Realistic Blade Flame Animation
+    // 6. Dynamic 360-Degree Fire Sheath & Multi-Zone Flame Planes
     const flameSpeed = t * (this.isHovered ? 18 : 12)
+    if (this.sheathMesh) {
+      this.sheathMesh.rotation.y = flameSpeed * 0.75
+      const sheathPulse = Math.sin(flameSpeed * 1.5) * 0.15
+      this.sheathMesh.scale.set(
+        (this.isHovered ? 1.3 : 1.0) + sheathPulse,
+        1.0,
+        (this.isHovered ? 1.3 : 1.0) + sheathPulse,
+      )
+    }
+
     for (let i = 0; i < this.flameMeshes.length; i++) {
       const f = this.flameMeshes[i]
-      const phase = flameSpeed + i * 1.35
+      const phase = flameSpeed + i * 1.25
       const wave = Math.sin(phase * 1.6)
       const cosWave = Math.cos(phase * 1.3)
 
-      f.scale.x = (this.isHovered ? 1.5 : 1.1) + wave * 0.35
-      f.scale.y = (this.isHovered ? 1.6 : 1.2) + cosWave * 0.35
-      f.rotation.z = -0.15 + wave * 0.2
-      f.rotation.y = cosWave * 0.3
-      f.position.x = wave * 0.2
-      f.position.z = 0.65 + cosWave * 0.2
+      f.scale.x = (this.isHovered ? 1.45 : 1.05) + wave * 0.3
+      f.scale.y = (this.isHovered ? 1.55 : 1.15) + cosWave * 0.3
+      f.rotation.z = -0.12 + wave * 0.18
+      f.position.x = (f.position.x > 0.2 ? 0.45 : (f.position.x < -0.2 ? -0.45 : wave * 0.15))
     }
 
     // Dynamic spiral fire ribbons coiling along blade
@@ -909,14 +1049,15 @@ class SlayerFlameAnimation extends PlayerAnimation {
       this.spiralMesh2.scale.setScalar(1.0 + Math.cos(flameSpeed * 2.0) * 0.15)
     }
 
-    // 7. Realistic Rising Ember Sparks with turbulent drift
+    // 7. Full 360-Degree Orbiting Rising Ember Sparks
     for (let i = 0; i < this.embers.length; i++) {
       const ember = this.embers[i]
-      const eTime = t * 8 + i * 1.6
-      ember.position.y = ((ember.position.y - 1.5 + 0.3) % 20) + 1.5
-      ember.position.x = Math.sin(eTime * 0.8) * (1.2 + (i % 3) * 0.4)
-      ember.position.z = Math.cos(eTime * 0.8) * (1.2 + (i % 3) * 0.4) + 0.4
-      const pulse = Math.sin(eTime * 2.4) * 0.35 + 0.75
+      const eTime = t * 7 + i * ((Math.PI * 2) / this.embers.length)
+      ember.position.y = ((ember.position.y - 1.0 + 0.35) % 22) + 1.0
+      const orbitRadius = 1.3 + (i % 3) * 0.45
+      ember.position.x = Math.sin(eTime) * orbitRadius
+      ember.position.z = Math.cos(eTime) * orbitRadius + 0.1
+      const pulse = Math.sin(eTime * 2.2) * 0.35 + 0.75
       ember.scale.setScalar(pulse)
       ember.rotation.z = eTime * 0.4
     }
@@ -935,14 +1076,14 @@ function updateCameraFraming() {
 
   const isSlayer = selectedAnimation.value === 'slayer'
   // Generous height units to give full visual range and headroom for the entire sword
-  const charHeightUnits = isSlayer ? 56 : 32
+  const charHeightUnits = isSlayer ? 58 : 32
   const targetCharHeightPx = isSlayer ? 380 : 340
 
   const visibleHeight = (charHeightUnits / targetCharHeightPx) * height
   const distance = visibleHeight / (2 * Math.tan(rad))
 
-  // targetY = -4.2 for slayer centers the character and full sword with plenty of headroom
-  const targetY = isSlayer ? -4.2 : (selectedAnimation.value === 'gojo' ? -2.5 : -2)
+  // targetY = -4.3 for slayer centers the character and full sword with plenty of headroom
+  const targetY = isSlayer ? -4.3 : (selectedAnimation.value === 'gojo' ? -2.5 : -2)
 
   viewer.camera.fov = fov
   viewer.camera.near = 0.1
