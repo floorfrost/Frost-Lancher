@@ -781,7 +781,7 @@ function buildNichirinKatana(): {
   const edgeMesh = new Mesh(edgeGeo, edgeMat)
   katana.add(edgeMesh)
 
-  // 4. Volumetric Hinokami Kagura Fire - FOCUSED STRICTLY ON SHARP CUTTING EDGE & TIP
+  // 4. Volumetric Hinokami Kagura Fire - CUTTING EDGE ONLY (Sharp tip kept completely clean)
   const flameTex = getRealisticFlameTexture()
   const flameMeshes: Mesh[] = []
 
@@ -793,29 +793,18 @@ function buildNichirinKatana(): {
     depthWrite: false,
   })
 
-  // A. Razor Cutting Edge Flame Planes (licking strictly along the sharp Ha cutting line)
-  for (let i = 0; i < 10; i++) {
-    const fGeo = new PlaneGeometry(2.2 + (i % 2) * 0.4, 4.2 + (i % 3) * 0.6)
+  // Razor Cutting Edge Flame Planes (stops before Kissaki so sharp tip remains clean & visible)
+  for (let i = 0; i < 9; i++) {
+    const fGeo = new PlaneGeometry(2.0 + (i % 2) * 0.35, 3.8 + (i % 3) * 0.5)
     const fMesh = new Mesh(fGeo, flameMat)
-    const yPos = 2.5 + i * 1.5
-    fMesh.position.set(0, yPos, 0.68 + (i / 10) * 0.08)
+    const yPos = 2.4 + i * 1.45
+    fMesh.position.set(0, yPos, 0.68 + (i / 9) * 0.06)
     fMesh.rotation.z = -0.14
     katana.add(fMesh)
     flameMeshes.push(fMesh)
   }
 
-  // B. Sharp Kissaki Tip Flame Tongues (erupting directly from the needle point upward)
-  for (let i = 0; i < 5; i++) {
-    const fGeo = new PlaneGeometry(2.6 + i * 0.3, 5.2 + i * 0.5)
-    const fMesh = new Mesh(fGeo, flameMat)
-    fMesh.position.set(0, 18.5 + i * 0.8, 0.48)
-    fMesh.rotation.y = (i * Math.PI) / 5
-    fMesh.rotation.z = -0.1
-    katana.add(fMesh)
-    flameMeshes.push(fMesh)
-  }
-
-  // 5. Realistic Floating Fire Embers / Spark Cinders rising from sharp points
+  // 5. Realistic Floating Fire Embers / Spark Cinders rising along cutting edge
   const emberTex = getRealisticEmberTexture()
   const emberMat = new MeshBasicMaterial({
     map: emberTex,
@@ -826,13 +815,13 @@ function buildNichirinKatana(): {
   })
 
   const embers: Mesh[] = []
-  for (let i = 0; i < 18; i++) {
-    const emberGeo = new PlaneGeometry(0.8, 0.8)
+  for (let i = 0; i < 14; i++) {
+    const emberGeo = new PlaneGeometry(0.75, 0.75)
     const emberMesh = new Mesh(emberGeo, emberMat)
     emberMesh.position.set(
-      Math.sin(i * 1.7) * 0.8,
-      2.0 + (i / 18) * 19.0,
-      0.6 + Math.cos(i * 1.7) * 0.6,
+      Math.sin(i * 1.7) * 0.7,
+      2.0 + (i / 14) * 13.5,
+      0.6 + Math.cos(i * 1.7) * 0.5,
     )
     katana.add(emberMesh)
     embers.push(emberMesh)
@@ -958,7 +947,7 @@ class SlayerFlameAnimation extends PlayerAnimation {
     for (let i = 0; i < this.embers.length; i++) {
       const ember = this.embers[i]
       const eTime = t * 7 + i * ((Math.PI * 2) / this.embers.length)
-      ember.position.y = ((ember.position.y - 1.0 + 0.35) % 22) + 1.0
+      ember.position.y = ((ember.position.y - 1.0 + 0.3) % 15.0) + 1.0
       ember.position.x = Math.sin(eTime) * (0.6 + (i % 3) * 0.2)
       ember.position.z = 0.65 + Math.cos(eTime) * (0.5 + (i % 2) * 0.2)
       const pulse = Math.sin(eTime * 2.2) * 0.35 + 0.75
