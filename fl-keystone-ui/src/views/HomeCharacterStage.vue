@@ -12,7 +12,10 @@
       <canvas
         ref="canvasRef"
         class="character-canvas"
-        :class="{ 'gojo-active-canvas': selectedAnimation === 'gojo' }"
+        :class="{
+          'gojo-active-canvas': selectedAnimation === 'gojo',
+          'slayer-active-canvas': selectedAnimation === 'slayer',
+        }"
       />
     </div>
 
@@ -121,6 +124,100 @@
       <div class="air-particle p8" />
     </div>
 
+    <!-- Demon Slayer Hinokami Kagura Fire & Rage Field -->
+    <div
+      v-else-if="selectedAnimation === 'slayer'"
+      class="slayer-fire-field pointer-events-none absolute inset-0 flex items-center justify-center overflow-visible"
+      aria-hidden="true"
+    >
+      <!-- Pulsing Fire Aura Core behind character -->
+      <div class="slayer-fire-aura-core" />
+      <div class="slayer-fire-shockwave wave-1" />
+      <div class="slayer-fire-shockwave wave-2" />
+
+      <!-- Swirling Hinokami Kagura Flame Ribbons & Arcs (SVG) -->
+      <svg class="flame-ribbons-svg" viewBox="0 0 520 480" fill="none">
+        <defs>
+          <linearGradient id="flameBladeGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+            <stop offset="0%" stop-color="#ff1100" stop-opacity="0" />
+            <stop offset="20%" stop-color="#ff3300" stop-opacity="0.95" />
+            <stop offset="55%" stop-color="#ff7700" stop-opacity="1" />
+            <stop offset="85%" stop-color="#ffea00" stop-opacity="1" />
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+          </linearGradient>
+          <linearGradient id="flameCrimsonAura" x1="0%" y1="100%" x2="0%" y2="0%">
+            <stop offset="0%" stop-color="#990000" stop-opacity="0" />
+            <stop offset="35%" stop-color="#e62e00" stop-opacity="0.85" />
+            <stop offset="75%" stop-color="#ff6600" stop-opacity="0.95" />
+            <stop offset="100%" stop-color="#ffd000" stop-opacity="0" />
+          </linearGradient>
+          <filter id="flameGlowFilter" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="5" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+        </defs>
+
+        <!-- Hinokami Kagura Circular Slash Arcs wrapping around the character -->
+        <path
+          d="M 120,430 C 60,310 90,200 200,140 C 310,80 430,120 440,210 C 450,300 370,390 280,410"
+          stroke="url(#flameBladeGrad)"
+          stroke-width="4.5"
+          stroke-linecap="round"
+          class="flame-stream stream-fire-1"
+          filter="url(#flameGlowFilter)"
+        />
+        <path
+          d="M 400,420 C 460,300 420,180 320,130 C 220,80 120,140 140,240 C 160,340 250,390 340,380"
+          stroke="url(#flameCrimsonAura)"
+          stroke-width="3.5"
+          stroke-linecap="round"
+          class="flame-stream stream-fire-2"
+          filter="url(#flameGlowFilter)"
+        />
+        <path
+          d="M 190,380 C 140,300 170,220 270,200 C 370,180 360,110 280,90"
+          stroke="url(#flameBladeGrad)"
+          stroke-width="3"
+          stroke-linecap="round"
+          class="flame-stream stream-fire-inner"
+          filter="url(#flameGlowFilter)"
+        />
+        <path
+          d="M 180,460 C 170,360 155,270 165,150"
+          stroke="url(#flameBladeGrad)"
+          stroke-width="3.5"
+          stroke-linecap="round"
+          class="flame-stream flame-pillar-1"
+        />
+        <path
+          d="M 330,460 C 345,350 360,260 350,140"
+          stroke="url(#flameBladeGrad)"
+          stroke-width="3.5"
+          stroke-linecap="round"
+          class="flame-stream flame-pillar-2"
+        />
+        <path
+          d="M 260,470 C 255,370 245,280 255,170"
+          stroke="url(#flameCrimsonAura)"
+          stroke-width="3"
+          stroke-linecap="round"
+          class="flame-stream flame-pillar-3"
+        />
+      </svg>
+
+      <!-- Rising Embers & Spark Motes -->
+      <div class="fire-spark fs1" />
+      <div class="fire-spark fs2" />
+      <div class="fire-spark fs3" />
+      <div class="fire-spark fs4" />
+      <div class="fire-spark fs5" />
+      <div class="fire-spark fs6" />
+      <div class="fire-spark fs7" />
+      <div class="fire-spark fs8" />
+      <div class="fire-spark fs9" />
+      <div class="fire-spark fs10" />
+    </div>
+
     <!-- Realistic Screen-Wide Volumetric Sunlight & God Rays (Additive Blend Mode) -->
     <Teleport to="body">
       <div
@@ -211,6 +308,28 @@
         <div class="sun-bokeh-mote b12" />
       </div>
     </Teleport>
+
+    <!-- Demon Slayer Fullscreen Flame & Heat Vignette -->
+    <Teleport to="body">
+      <div
+        v-if="selectedAnimation === 'slayer'"
+        class="slayer-screen-fire pointer-events-none fixed inset-0 overflow-hidden select-none"
+        aria-hidden="true"
+      >
+        <!-- Ambient heat haze & fiery rage vignette -->
+        <div class="slayer-ambient-heat" />
+        <div class="slayer-bottom-inferno" />
+        <!-- Floating screen fire motes -->
+        <div class="screen-fire-mote fm1" />
+        <div class="screen-fire-mote fm2" />
+        <div class="screen-fire-mote fm3" />
+        <div class="screen-fire-mote fm4" />
+        <div class="screen-fire-mote fm5" />
+        <div class="screen-fire-mote fm6" />
+        <div class="screen-fire-mote fm7" />
+        <div class="screen-fire-mote fm8" />
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -218,7 +337,16 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { PlayerAnimation, PlayerObject, SkinViewer } from 'skinview3d'
-import { DirectionalLight } from 'three'
+import {
+  BoxGeometry,
+  DirectionalLight,
+  DoubleSide,
+  Group,
+  Mesh,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  PointLight,
+} from 'three'
 import { injection } from '@/util/inject'
 import { kUserContext } from '@/composables/user'
 import { useUserSkin } from '@/composables/userSkin'
@@ -230,9 +358,12 @@ const router = useRouter()
 const wrapperRef = ref<HTMLElement | null>(null)
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 let viewer: SkinViewer | undefined
-let customAnim: (JettFloatingAnimation | GojoFloatingAnimation) | undefined
+let customAnim: (JettFloatingAnimation | GojoFloatingAnimation | SlayerFlameAnimation) | undefined
 let sunLight: DirectionalLight | undefined
 let rimLight: DirectionalLight | undefined
+let swordPointLight: PointLight | undefined
+let fieryRimLight: DirectionalLight | undefined
+let fierySideLight: DirectionalLight | undefined
 
 const { selectedAnimation } = useSkinAnimation()
 
@@ -361,6 +492,241 @@ class GojoFloatingAnimation extends PlayerAnimation {
   }
 }
 
+function buildNichirinKatana(): {
+  katanaGroup: Group
+  flameMeshes: Mesh[]
+  embers: Mesh[]
+} {
+  const katana = new Group()
+  katana.name = 'nichirinKatana'
+
+  // 1. Grip / Tsuka: wrapped dark handle
+  const gripGeo = new BoxGeometry(0.7, 5.5, 0.9)
+  const gripMat = new MeshStandardMaterial({
+    color: 0x161616,
+    roughness: 0.85,
+  })
+  const gripMesh = new Mesh(gripGeo, gripMat)
+  gripMesh.position.set(0, -2.5, 0)
+  katana.add(gripMesh)
+
+  // Pommel / Kashira (Golden end cap)
+  const pommelGeo = new BoxGeometry(0.85, 0.6, 1.05)
+  const goldMat = new MeshStandardMaterial({
+    color: 0xffaa00,
+    metalness: 0.85,
+    roughness: 0.25,
+  })
+  const pommelMesh = new Mesh(pommelGeo, goldMat)
+  pommelMesh.position.set(0, -5.3, 0)
+  katana.add(pommelMesh)
+
+  // 2. Handguard / Tsuba: Rengoku/Tanjiro flame shape
+  const tsubaGeo = new BoxGeometry(2.6, 0.4, 2.6)
+  const tsubaMat = new MeshStandardMaterial({
+    color: 0x220500,
+    emissive: 0xff3300,
+    emissiveIntensity: 0.7,
+    roughness: 0.4,
+  })
+  const tsubaMesh = new Mesh(tsubaGeo, tsubaMat)
+  tsubaMesh.position.set(0, 0.3, 0)
+  katana.add(tsubaMesh)
+
+  // Golden Tsuba flame rim
+  const tsubaRimGeo = new BoxGeometry(3.0, 0.25, 3.0)
+  const tsubaRimMesh = new Mesh(tsubaRimGeo, goldMat)
+  tsubaRimMesh.position.set(0, 0.3, 0)
+  katana.add(tsubaRimMesh)
+
+  // Habaki (Blade collar)
+  const habakiGeo = new BoxGeometry(0.75, 1.0, 1.1)
+  const habakiMesh = new Mesh(habakiGeo, goldMat)
+  habakiMesh.position.set(0, 0.9, 0)
+  katana.add(habakiMesh)
+
+  // 3. Nichirin Blade: Long black steel katana blade with fiery crimson-orange edge
+  const bladeLength = 22
+  const bladeGeo = new BoxGeometry(0.35, bladeLength, 1.3)
+  const bladeMat = new MeshStandardMaterial({
+    color: 0x0a0a0a,
+    metalness: 0.95,
+    roughness: 0.15,
+    emissive: 0x220500,
+    emissiveIntensity: 0.35,
+  })
+  const bladeMesh = new Mesh(bladeGeo, bladeMat)
+  bladeMesh.position.set(0, bladeLength / 2 + 1.2, 0)
+  katana.add(bladeMesh)
+
+  // Fiery Cutting Edge (Glowing red-orange sun breathing edge)
+  const edgeGeo = new BoxGeometry(0.4, bladeLength, 0.35)
+  const edgeMat = new MeshBasicMaterial({
+    color: 0xff3a00,
+  })
+  const edgeMesh = new Mesh(edgeGeo, edgeMat)
+  edgeMesh.position.set(0, bladeLength / 2 + 1.2, 0.65)
+  katana.add(edgeMesh)
+
+  // Kissaki (Angled blade tip)
+  const tipGeo = new BoxGeometry(0.35, 2.0, 1.0)
+  const tipMesh = new Mesh(tipGeo, bladeMat)
+  tipMesh.position.set(0, bladeLength + 1.9, -0.1)
+  tipMesh.rotation.x = -0.4
+  katana.add(tipMesh)
+
+  // 4. Flaming Fire Geometry along the Blade (Hinokami Kagura Fire Ribbons)
+  const flameMeshes: Mesh[] = []
+  const flameColors = [0xff1100, 0xff5500, 0xffbb00, 0xff3300]
+
+  for (let i = 0; i < 6; i++) {
+    const flameGeo = new BoxGeometry(0.6 + (i % 2) * 0.4, 4.2 + (i % 3) * 1.6, 1.8 + (i % 2) * 0.8)
+    const flameMat = new MeshBasicMaterial({
+      color: flameColors[i % flameColors.length],
+      transparent: true,
+      opacity: 0.78,
+      side: DoubleSide,
+    })
+    const fMesh = new Mesh(flameGeo, flameMat)
+    fMesh.position.set(
+      (Math.random() - 0.5) * 0.5,
+      3.2 + i * 3.5,
+      (Math.random() - 0.5) * 0.6 + 0.35,
+    )
+    katana.add(fMesh)
+    flameMeshes.push(fMesh)
+  }
+
+  // 5. 3D Fiery Embers / Sparks floating around the blade
+  const embers: Mesh[] = []
+  const emberMat = new MeshBasicMaterial({
+    color: 0xffe57f,
+  })
+  for (let i = 0; i < 14; i++) {
+    const emberGeo = new BoxGeometry(0.35, 0.35, 0.35)
+    const emberMesh = new Mesh(emberGeo, emberMat)
+    emberMesh.position.set(
+      (Math.random() - 0.5) * 3.5,
+      2.0 + Math.random() * bladeLength,
+      (Math.random() - 0.5) * 3.5,
+    )
+    katana.add(emberMesh)
+    embers.push(emberMesh)
+  }
+
+  return { katanaGroup: katana, flameMeshes, embers }
+}
+
+/**
+ * Demon Slayer Flame Breathing (Hinokami Kagura) Animation
+ * Character in battle stance with fiery Nichirin katana and blazing aura
+ */
+class SlayerFlameAnimation extends PlayerAnimation {
+  isHovered: boolean = false
+  katanaGroup: Group | null = null
+  flameMeshes: Mesh[] = []
+  embers: Mesh[] = []
+  private attachedPlayer: PlayerObject | null = null
+
+  private ensureKatana(player: PlayerObject) {
+    if (this.katanaGroup && (this.katanaGroup.parent as any) === player.skin.rightArm) {
+      return
+    }
+    const existing = (player.skin.rightArm as any).getObjectByName('nichirinKatana')
+    if (existing) {
+      ;(player.skin.rightArm as any).remove(existing)
+    }
+
+    const built = buildNichirinKatana()
+    this.katanaGroup = built.katanaGroup
+    this.flameMeshes = built.flameMeshes
+    this.embers = built.embers
+    this.attachedPlayer = player
+
+    this.katanaGroup.position.set(0, -10.5, 0.5)
+    this.katanaGroup.rotation.set(Math.PI / 2, 0, -0.15)
+    ;(player.skin.rightArm as any).add(this.katanaGroup)
+  }
+
+  public detach() {
+    if (this.attachedPlayer && this.katanaGroup) {
+      ;(this.attachedPlayer.skin.rightArm as any).remove(this.katanaGroup)
+      this.katanaGroup = null
+      this.attachedPlayer = null
+    }
+  }
+
+  protected animate(player: PlayerObject): void {
+    this.ensureKatana(player)
+
+    const t = this.progress
+    const speed = this.isHovered ? 2.2 : 1.4
+
+    // 1. Total Concentration Flame Breathing & Battle Crouch
+    const breath = Math.sin(t * speed * 2) * 0.03
+    const rageTremor = Math.sin(t * 30) * 0.005
+
+    player.position.y = -2.5 + Math.sin(t * speed) * 0.2
+    player.position.x = Math.sin(t * (speed * 0.5)) * 0.3
+
+    // 2. Battle Stance Body Rotation
+    player.rotation.y = -0.42
+    player.rotation.x = 0.14 + breath
+    player.rotation.z = -0.04
+
+    // 3. Fierce Head Stare along the blade
+    player.skin.head.rotation.x = 0.12 + Math.sin(t * speed) * 0.02
+    player.skin.head.rotation.y = 0.44
+    player.skin.head.rotation.z = -0.05
+
+    // 4. Two-Handed Katana Combat Stance
+    const strikeOffset = this.isHovered ? -0.55 : 0
+    player.skin.rightArm.rotation.x = -1.22 + strikeOffset + breath + rageTremor
+    player.skin.rightArm.rotation.y = -0.38
+    player.skin.rightArm.rotation.z = -0.28 + (this.isHovered ? -0.25 : 0)
+
+    player.skin.leftArm.rotation.x = -1.14 + strikeOffset + breath + rageTremor
+    player.skin.leftArm.rotation.y = 0.52
+    player.skin.leftArm.rotation.z = 0.36 + (this.isHovered ? 0.25 : 0)
+
+    // 5. Solid Martial Legs
+    player.skin.rightLeg.rotation.x = 0.38 + breath * 0.5
+    player.skin.rightLeg.rotation.y = -0.15
+    player.skin.rightLeg.rotation.z = 0.12
+    player.skin.leftLeg.rotation.x = -0.42 - breath * 0.5
+    player.skin.leftLeg.rotation.y = 0.15
+    player.skin.leftLeg.rotation.z = -0.12
+
+    // Base body alignment
+    player.skin.head.position.set(0, 0, 0)
+    player.skin.body.position.set(0, -6, 0)
+    player.skin.rightLeg.position.set(-1.9, -12, -0.1)
+    player.skin.leftLeg.position.set(1.9, -12, -0.1)
+
+    // 6. Dynamic Blade Flame Animation
+    const flameSpeed = t * (this.isHovered ? 24 : 16)
+    for (let i = 0; i < this.flameMeshes.length; i++) {
+      const fMesh = this.flameMeshes[i]
+      const wave = Math.sin(flameSpeed + i * 2.1)
+      const cosWave = Math.cos(flameSpeed * 1.2 + i * 1.7)
+
+      fMesh.scale.x = (this.isHovered ? 1.5 : 1.0) + wave * 0.45
+      fMesh.scale.z = (this.isHovered ? 1.5 : 1.0) + cosWave * 0.4
+      fMesh.rotation.y = flameSpeed * 0.3 + i
+      fMesh.position.x = wave * 0.35
+      fMesh.position.z = cosWave * 0.35 + 0.35
+    }
+
+    // 7. Rising Embers along the Blade
+    for (let i = 0; i < this.embers.length; i++) {
+      const ember = this.embers[i]
+      ember.position.y = ((ember.position.y - 2.0 + 0.3) % 22) + 2.0
+      const pulse = Math.sin(flameSpeed * 1.5 + i * 1.5)
+      ember.scale.setScalar(0.7 + pulse * 0.5)
+    }
+  }
+}
+
 function updateCameraFraming() {
   if (!viewer) return
   const width = wrapperRef.value?.clientWidth || 540
@@ -376,9 +742,7 @@ function updateCameraFraming() {
   const distance = visibleHeight / (2 * Math.tan(rad))
 
   // In skinview3d, player model center is at Y = 0 (head at +16, feet at -16).
-  // Target Y = -2 / -2.5 places the model center slightly elevated above canvas center,
-  // floating gracefully in the upper-mid area without clipping the head.
-  const targetY = selectedAnimation.value === 'gojo' ? -2.5 : -2
+  const targetY = selectedAnimation.value === 'gojo' || selectedAnimation.value === 'slayer' ? -2.5 : -2
 
   viewer.camera.fov = fov
   viewer.camera.updateProjectionMatrix()
@@ -396,6 +760,10 @@ function updateCameraFraming() {
 function updateLighting() {
   if (!viewer) return
   if (selectedAnimation.value === 'gojo') {
+    if (swordPointLight) swordPointLight.visible = false
+    if (fieryRimLight) fieryRimLight.visible = false
+    if (fierySideLight) fierySideLight.visible = false
+
     if (!sunLight) {
       // Main overhead warm sunlight
       sunLight = new DirectionalLight(0xfff7d6, 3.2)
@@ -413,9 +781,38 @@ function updateLighting() {
 
     viewer.globalLight.color.setHex(0xfffaed)
     viewer.globalLight.intensity = 2.4
+  } else if (selectedAnimation.value === 'slayer') {
+    if (sunLight) sunLight.visible = false
+    if (rimLight) rimLight.visible = false
+
+    if (!swordPointLight) {
+      swordPointLight = new PointLight(0xff4500, 5.5, 50)
+      swordPointLight.position.set(0, 5, 15)
+      ;(viewer.scene as any).add(swordPointLight)
+    }
+    if (!fieryRimLight) {
+      fieryRimLight = new DirectionalLight(0xff1800, 4.2)
+      fieryRimLight.position.set(20, 25, -45)
+      ;(viewer.scene as any).add(fieryRimLight)
+    }
+    if (!fierySideLight) {
+      fierySideLight = new DirectionalLight(0xff8c00, 3.4)
+      fierySideLight.position.set(-35, 15, -25)
+      ;(viewer.scene as any).add(fierySideLight)
+    }
+    swordPointLight.visible = true
+    fieryRimLight.visible = true
+    fierySideLight.visible = true
+
+    viewer.globalLight.color.setHex(0xff4a10)
+    viewer.globalLight.intensity = 2.5
   } else {
     if (sunLight) sunLight.visible = false
     if (rimLight) rimLight.visible = false
+    if (swordPointLight) swordPointLight.visible = false
+    if (fieryRimLight) fieryRimLight.visible = false
+    if (fierySideLight) fierySideLight.visible = false
+
     viewer.globalLight.color.setHex(0xffffff)
     viewer.globalLight.intensity = 3.0
   }
@@ -423,8 +820,19 @@ function updateLighting() {
 
 function applyAnimation() {
   if (!viewer) return
+
+  if (customAnim instanceof SlayerFlameAnimation) {
+    customAnim.detach()
+  }
+  const existingKatana = (viewer.playerObject?.skin?.rightArm as any)?.getObjectByName('nichirinKatana')
+  if (existingKatana && viewer.playerObject?.skin?.rightArm) {
+    ;(viewer.playerObject.skin.rightArm as any).remove(existingKatana)
+  }
+
   if (selectedAnimation.value === 'gojo') {
     customAnim = new GojoFloatingAnimation()
+  } else if (selectedAnimation.value === 'slayer') {
+    customAnim = new SlayerFlameAnimation()
   } else {
     customAnim = new JettFloatingAnimation()
   }
@@ -519,6 +927,13 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
   if (viewer) {
+    if (customAnim instanceof SlayerFlameAnimation) {
+      customAnim.detach()
+    }
+    const existingKatana = (viewer.playerObject?.skin?.rightArm as any)?.getObjectByName('nichirinKatana')
+    if (existingKatana && viewer.playerObject?.skin?.rightArm) {
+      ;(viewer.playerObject.skin.rightArm as any).remove(existingKatana)
+    }
     if (sunLight) {
       ;(viewer.scene as any).remove(sunLight)
       sunLight = undefined
@@ -526,6 +941,18 @@ onUnmounted(() => {
     if (rimLight) {
       ;(viewer.scene as any).remove(rimLight)
       rimLight = undefined
+    }
+    if (swordPointLight) {
+      ;(viewer.scene as any).remove(swordPointLight)
+      swordPointLight = undefined
+    }
+    if (fieryRimLight) {
+      ;(viewer.scene as any).remove(fieryRimLight)
+      fieryRimLight = undefined
+    }
+    if (fierySideLight) {
+      ;(viewer.scene as any).remove(fierySideLight)
+      fierySideLight = undefined
     }
     viewer.dispose()
     viewer = undefined
@@ -560,6 +987,10 @@ onUnmounted(() => {
 
 .gojo-active-canvas {
   filter: drop-shadow(0 -4px 18px rgba(254, 240, 138, 0.4)) drop-shadow(0 0 32px rgba(250, 204, 21, 0.22));
+}
+
+.slayer-active-canvas {
+  filter: drop-shadow(0 0 20px rgba(255, 69, 0, 0.65)) drop-shadow(0 0 45px rgba(255, 140, 0, 0.35));
 }
 
 /* Valorant Jett Wind & Air Draft Effects */
@@ -980,6 +1411,236 @@ onUnmounted(() => {
   }
   100% {
     transform: translateY(100px) translateX(15px) scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* Demon Slayer Flame Breathing & Hinokami Kagura Rage Effects */
+.slayer-fire-field {
+  width: 100%;
+  height: 100%;
+}
+
+.slayer-fire-aura-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 290px;
+  height: 390px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse at center, rgba(255, 68, 0, 0.55) 0%, rgba(255, 140, 0, 0.3) 45%, rgba(255, 0, 0, 0.12) 70%, transparent 85%);
+  border-radius: 50%;
+  filter: blur(28px);
+  animation: fireAuraPulse 2.4s ease-in-out infinite alternate;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+@keyframes fireAuraPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.92);
+    opacity: 0.75;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.14);
+    opacity: 1;
+  }
+}
+
+.slayer-fire-shockwave {
+  position: absolute;
+  top: 50%;
+  margin-top: 140px;
+  width: 280px;
+  height: 60px;
+  border: 2px solid rgba(255, 69, 0, 0.85);
+  border-radius: 50%;
+  pointer-events: none;
+  filter: drop-shadow(0 0 12px rgba(255, 69, 0, 0.9));
+  animation: fireShockwave 2.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+.wave-2 {
+  animation-delay: 1.4s;
+}
+
+@keyframes fireShockwave {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.95;
+    border-color: rgba(255, 230, 0, 0.95);
+  }
+  60% {
+    opacity: 0.45;
+    border-color: rgba(255, 69, 0, 0.7);
+  }
+  100% {
+    transform: scale(1.75);
+    opacity: 0;
+  }
+}
+
+.flame-ribbons-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.flame-stream {
+  stroke-dasharray: 240 180;
+  animation: flameStreamDash 2.4s linear infinite;
+}
+
+.stream-fire-1 {
+  stroke-dasharray: 280 200;
+  animation-duration: 2.2s;
+}
+
+.stream-fire-2 {
+  stroke-dasharray: 260 190;
+  animation-duration: 2.6s;
+  animation-direction: reverse;
+}
+
+.stream-fire-inner {
+  stroke-dasharray: 200 150;
+  animation-duration: 1.8s;
+}
+
+.flame-pillar-1 {
+  stroke-dasharray: 180 140;
+  animation-duration: 1.6s;
+}
+
+.flame-pillar-2 {
+  stroke-dasharray: 190 140;
+  animation-duration: 1.9s;
+}
+
+.flame-pillar-3 {
+  stroke-dasharray: 170 130;
+  animation-duration: 1.7s;
+}
+
+@keyframes flameStreamDash {
+  0% {
+    stroke-dashoffset: 700;
+    opacity: 0.2;
+  }
+  40% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 0.9;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0.2;
+  }
+}
+
+.fire-spark {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #fff3a8;
+  box-shadow: 0 0 10px 2px #ff4500, 0 0 18px 4px #ff9900;
+  pointer-events: none;
+  animation: fireSparkFloat 3.0s ease-in-out infinite;
+}
+
+.fs1 { left: 42%; top: 78%; animation-delay: 0.1s; }
+.fs2 { left: 56%; top: 82%; animation-delay: 0.7s; }
+.fs3 { left: 35%; top: 70%; animation-delay: 1.3s; }
+.fs4 { left: 63%; top: 72%; animation-delay: 0.4s; }
+.fs5 { left: 48%; top: 60%; animation-delay: 1.9s; }
+.fs6 { left: 38%; top: 52%; animation-delay: 1.1s; }
+.fs7 { left: 58%; top: 48%; animation-delay: 2.2s; }
+.fs8 { left: 45%; top: 40%; animation-delay: 0.8s; }
+.fs9 { left: 52%; top: 32%; animation-delay: 1.6s; }
+.fs10 { left: 40%; top: 25%; animation-delay: 2.5s; }
+
+@keyframes fireSparkFloat {
+  0% {
+    transform: translateY(0) translateX(0) scale(0.6);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-25px) translateX(-8px) scale(1.1);
+  }
+  60% {
+    opacity: 0.85;
+    transform: translateY(-75px) translateX(12px) scale(0.9);
+  }
+  100% {
+    transform: translateY(-130px) translateX(-15px) scale(0.3);
+    opacity: 0;
+  }
+}
+
+/* Fullscreen Ambient Heat & Flame Vignette */
+.slayer-screen-fire {
+  z-index: 1;
+}
+
+.slayer-ambient-heat {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 65%, transparent 40%, rgba(255, 30, 0, 0.08) 75%, rgba(180, 10, 0, 0.18) 100%);
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.slayer-bottom-inferno {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 220px;
+  background: linear-gradient(to top, rgba(255, 68, 0, 0.14) 0%, rgba(255, 30, 0, 0.05) 50%, transparent 100%);
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.screen-fire-mote {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #ffe066;
+  box-shadow: 0 0 10px 2px #ff3b00;
+  pointer-events: none;
+  animation: screenEmberRise 6s linear infinite;
+}
+
+.fm1 { left: 15%; bottom: -10px; animation-delay: 0.2s; animation-duration: 5.5s; }
+.fm2 { left: 28%; bottom: -10px; animation-delay: 1.8s; animation-duration: 6.2s; }
+.fm3 { left: 45%; bottom: -10px; animation-delay: 0.9s; animation-duration: 5.8s; }
+.fm4 { left: 62%; bottom: -10px; animation-delay: 2.7s; animation-duration: 6.5s; }
+.fm5 { left: 78%; bottom: -10px; animation-delay: 1.2s; animation-duration: 5.2s; }
+.fm6 { left: 88%; bottom: -10px; animation-delay: 3.4s; animation-duration: 6.0s; }
+.fm7 { left: 36%; bottom: -10px; animation-delay: 4.1s; animation-duration: 5.6s; }
+.fm8 { left: 52%; bottom: -10px; animation-delay: 2.1s; animation-duration: 6.8s; }
+
+@keyframes screenEmberRise {
+  0% {
+    transform: translateY(0) translateX(0) scale(0.5);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  80% {
+    opacity: 0.7;
+    transform: translateY(-70vh) translateX(30px) scale(1.0);
+  }
+  100% {
+    transform: translateY(-105vh) translateX(-20px) scale(0.2);
     opacity: 0;
   }
 }

@@ -1,7 +1,7 @@
 import { computed } from 'vue'
 import { useLocalStorage } from '@vueuse/core'
 
-export type SkinAnimationType = 'jett' | 'gojo'
+export type SkinAnimationType = 'jett' | 'gojo' | 'slayer'
 
 export interface SkinAnimationOption {
   id: SkinAnimationType
@@ -26,13 +26,20 @@ export const SKIN_ANIMATION_OPTIONS: SkinAnimationOption[] = [
     icon: 'wb_sunny',
     description: 'Divine sunlight & celestial levitation',
   },
+  {
+    id: 'slayer',
+    name: 'Demon Slayer flame breathing',
+    shortName: 'Demon Slayer',
+    icon: 'local_fire_department',
+    description: 'Blazing Nichirin sword & Hinokami Kagura rage aura',
+  },
 ]
 
 export function useSkinAnimation() {
-  const selectedAnimation = useLocalStorage<SkinAnimationType>('characterStageAnimation', 'gojo')
+  const selectedAnimation = useLocalStorage<SkinAnimationType>('characterStageAnimation', 'slayer')
 
   const activeAnimationOption = computed(() =>
-    SKIN_ANIMATION_OPTIONS.find((opt) => opt.id === selectedAnimation.value) || SKIN_ANIMATION_OPTIONS[1],
+    SKIN_ANIMATION_OPTIONS.find((opt) => opt.id === selectedAnimation.value) || SKIN_ANIMATION_OPTIONS[2],
   )
 
   function setAnimation(type: SkinAnimationType) {
