@@ -17,8 +17,8 @@ let nextDelegate: (() => void) | null = null
 let prevDelegate: (() => void) | null = null
 let setVolumeDelegate: ((v: number) => void) | null = null
 
-// Frequency bars for live audio visualizer (24 frequency bars)
-const frequencyBars = ref<number[]>(new Array(24).fill(0.15))
+// Frequency bars for live audio visualizer (16 frequency bars)
+const frequencyBars = ref<number[]>(new Array(16).fill(0.15))
 let visualizerFrameId: number | null = null
 let audioContext: AudioContext | null = null
 let analyserNode: AnalyserNode | null = null
@@ -31,7 +31,7 @@ function updateFrequencyLoop() {
     let stillAnimating = false
     const bars = frequencyBars.value.slice()
     for (let i = 0; i < bars.length; i++) {
-      const rest = 0.12 + Math.sin(i * 0.4) * 0.06
+      const rest = 0.12 + Math.sin(i * 0.5) * 0.06
       if (Math.abs(bars[i] - rest) > 0.01) {
         bars[i] += (rest - bars[i]) * 0.16
         stillAnimating = true
@@ -51,8 +51,8 @@ function updateFrequencyLoop() {
     try {
       analyserNode.getByteFrequencyData(freqData)
       const bars: number[] = []
-      const step = Math.floor(freqData.length / 24)
-      for (let i = 0; i < 24; i++) {
+      const step = Math.floor(freqData.length / 16)
+      for (let i = 0; i < 16; i++) {
         const val = freqData[i * step] / 255
         bars.push(Math.max(0.12, Math.min(1.0, val)))
       }
@@ -77,11 +77,10 @@ function useSyntheticVisualizer() {
   const snare = isSnare ? Math.pow(Math.max(0, 1 - (subBeat % 1) * 2.8), 2) * 0.75 : 0
 
   const bars: number[] = []
-  for (let i = 0; i < 24; i++) {
-    // Wave dynamics across 24 frequency channels
-    const wave = Math.sin(now * 7.5 + i * 0.4) * 0.3 + 0.4
-    const boost = (i < 6) ? kick * 0.75 : (i >= 6 && i < 16) ? snare * 0.6 : Math.sin(now * 11 + i * 0.8) * 0.28
-    const val = Math.min(1.0, Math.max(0.12, wave * 0.5 + boost + (Math.sin(now * 3.5 + i * 0.6) * 0.15)))
+  for (let i = 0; i < 16; i++) {
+    const wave = Math.sin(now * 7 + i * 0.55) * 0.28 + 0.38
+    const boost = (i < 4) ? kick * 0.65 : (i >= 4 && i < 10) ? snare * 0.55 : Math.sin(now * 12 + i) * 0.25
+    const val = Math.min(1.0, Math.max(0.12, wave * 0.5 + boost + (Math.sin(now * 3 + i * 0.9) * 0.12)))
     bars.push(val)
   }
   frequencyBars.value = bars
