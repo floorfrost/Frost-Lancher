@@ -338,13 +338,17 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { PlayerAnimation, PlayerObject, SkinViewer } from 'skinview3d'
 import {
+  AdditiveBlending,
   BoxGeometry,
+  CanvasTexture,
+  CylinderGeometry,
   DirectionalLight,
   DoubleSide,
   Group,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
+  PlaneGeometry,
   PointLight,
 } from 'three'
 import { injection } from '@/util/inject'
@@ -492,123 +496,283 @@ class GojoFloatingAnimation extends PlayerAnimation {
   }
 }
 
+let flameTexCache: CanvasTexture | null = null
+let emberTexCache: CanvasTexture | null = null
+
+function getRealisticFlameTexture(): CanvasTexture {
+  if (flameTexCache) return flameTexCache
+  const canvas = document.createElement('canvas')
+  canvas.width = 128
+  canvas.height = 256
+  const ctx = canvas.getContext('2d')!
+  ctx.clearRect(0, 0, 128, 256)
+
+  // Outer blazing flame gradient: white-yellow core -> bright solar orange -> deep crimson wisp -> transparent
+  const flameGrad = ctx.createLinearGradient(64, 256, 64, 0)
+  flameGrad.addColorStop(0, 'rgba(255, 60, 0, 0.95)')
+  flameGrad.addColorStop(0.35, 'rgba(255, 140, 0, 0.9)')
+  flameGrad.addColorStop(0.65, 'rgba(255, 220, 50, 0.95)')
+  flameGrad.addColorStop(0.9, 'rgba(255, 255, 220, 1.0)')
+  flameGrad.addColorStop(1, 'rgba(255, 255, 255, 0.9)')
+
+  // Draw authentic curved flame tongue with curling tip (Hinokami Kagura flame arc)
+  ctx.save()
+  ctx.beginPath()
+  ctx.moveTo(64, 15) // sharp flicking tip
+  ctx.bezierCurveTo(95, 70, 115, 140, 102, 200)
+  ctx.bezierCurveTo(90, 248, 38, 248, 26, 200)
+  ctx.bezierCurveTo(13, 140, 33, 70, 64, 15)
+  ctx.closePath()
+  ctx.fillStyle = flameGrad
+  ctx.shadowColor = '#ff3300'
+  ctx.shadowBlur = 18
+  ctx.fill()
+
+  // Inner white-hot blazing core
+  const coreGrad = ctx.createRadialGradient(64, 175, 4, 64, 150, 45)
+  coreGrad.addColorStop(0, 'rgba(255, 255, 255, 1.0)')
+  coreGrad.addColorStop(0.4, 'rgba(255, 250, 190, 0.95)')
+  coreGrad.addColorStop(0.7, 'rgba(255, 170, 40, 0.7)')
+  coreGrad.addColorStop(1, 'rgba(255, 80, 0, 0)')
+  ctx.fillStyle = coreGrad
+  ctx.fill()
+  ctx.restore()
+
+  flameTexCache = new CanvasTexture(canvas)
+  return flameTexCache
+}
+
+function getRealisticEmberTexture(): CanvasTexture {
+  if (emberTexCache) return emberTexCache
+  const canvas = document.createElement('canvas')
+  canvas.width = 64
+  canvas.height = 64
+  const ctx = canvas.getContext('2d')!
+  ctx.clearRect(0, 0, 64, 64)
+
+  const grad = ctx.createRadialGradient(32, 32, 1, 32, 32, 28)
+  grad.addColorStop(0, 'rgba(255, 255, 255, 1.0)')
+  grad.addColorStop(0.25, 'rgba(255, 230, 110, 0.95)')
+  grad.addColorStop(0.55, 'rgba(255, 110, 10, 0.75)')
+  grad.addColorStop(0.85, 'rgba(220, 20, 0, 0.3)')
+  grad.addColorStop(1, 'rgba(0, 0, 0, 0)')
+
+  ctx.fillStyle = grad
+  ctx.fillRect(0, 0, 64, 64)
+  emberTexCache = new CanvasTexture(canvas)
+  return emberTexCache
+}
+
 function buildNichirinKatana(): {
   katanaGroup: Group
   flameMeshes: Mesh[]
   embers: Mesh[]
+  spiralMesh1: Mesh
+  spiralMesh2: Mesh
 } {
   const katana = new Group()
   katana.name = 'nichirinKatana'
 
-  // 1. Grip / Tsuka: wrapped dark handle
-  const gripGeo = new BoxGeometry(0.7, 5.5, 0.9)
-  const gripMat = new MeshStandardMaterial({
-    color: 0x161616,
+  const goldMat = new MeshStandardMaterial({
+    color: 0xefa824,
+    metalness: 0.92,
+    roughness: 0.22,
+  })
+
+  // 1. Tsuka (Handle): Oval core wrapped with Tsukamaki braided diamond wrap
+  const gripCoreGeo = new BoxGeometry(0.72, 5.6, 0.92)
+  const samegawaMat = new MeshStandardMaterial({
+    color: 0xede8e1, // White rayskin underlay
     roughness: 0.85,
   })
-  const gripMesh = new Mesh(gripGeo, gripMat)
-  gripMesh.position.set(0, -2.5, 0)
-  katana.add(gripMesh)
+  const gripCore = new Mesh(gripCoreGeo, samegawaMat)
+  gripCore.position.set(0, -2.6, 0)
+  katana.add(gripCore)
 
-  // Pommel / Kashira (Golden end cap)
-  const pommelGeo = new BoxGeometry(0.85, 0.6, 1.05)
-  const goldMat = new MeshStandardMaterial({
-    color: 0xffaa00,
-    metalness: 0.85,
-    roughness: 0.25,
+  // Tsukamaki Ito (Black diamond wrap braids)
+  const wrapMat = new MeshStandardMaterial({
+    color: 0x141416,
+    roughness: 0.9,
   })
+  for (let i = 0; i < 7; i++) {
+    const wrapGeo = new BoxGeometry(0.8, 0.42, 1.0)
+    const wrapMesh = new Mesh(wrapGeo, wrapMat)
+    wrapMesh.position.set(0, -5.0 + i * 0.75, 0)
+    katana.add(wrapMesh)
+  }
+
+  // Golden Menuki ornament under wrap
+  const menukiGeo = new BoxGeometry(0.84, 0.6, 0.3)
+  const menukiMesh = new Mesh(menukiGeo, goldMat)
+  menukiMesh.position.set(0, -2.6, 0.36)
+  katana.add(menukiMesh)
+
+  // Kashira (Sculpted Golden Pommel Cap)
+  const pommelGeo = new BoxGeometry(0.88, 0.65, 1.08)
   const pommelMesh = new Mesh(pommelGeo, goldMat)
-  pommelMesh.position.set(0, -5.3, 0)
+  pommelMesh.position.set(0, -5.5, 0)
   katana.add(pommelMesh)
 
-  // 2. Handguard / Tsuba: Rengoku/Tanjiro flame shape
-  const tsubaGeo = new BoxGeometry(2.6, 0.4, 2.6)
-  const tsubaMat = new MeshStandardMaterial({
-    color: 0x220500,
-    emissive: 0xff3300,
-    emissiveIntensity: 0.7,
-    roughness: 0.4,
-  })
-  const tsubaMesh = new Mesh(tsubaGeo, tsubaMat)
-  tsubaMesh.position.set(0, 0.3, 0)
-  katana.add(tsubaMesh)
+  // Fuchi (Hilt collar near guard)
+  const fuchiGeo = new BoxGeometry(0.86, 0.35, 1.06)
+  const fuchiMesh = new Mesh(fuchiGeo, goldMat)
+  fuchiMesh.position.set(0, 0.0, 0)
+  katana.add(fuchiMesh)
 
-  // Golden Tsuba flame rim
-  const tsubaRimGeo = new BoxGeometry(3.0, 0.25, 3.0)
+  // 2. Tsuba (Multi-layered Flame Guard - Rengoku / Tanjiro Sun Guard)
+  // Lower Seppa (brass spacer)
+  const seppa1Geo = new BoxGeometry(1.6, 0.12, 1.8)
+  const seppa1Mesh = new Mesh(seppa1Geo, goldMat)
+  seppa1Mesh.position.set(0, 0.22, 0)
+  katana.add(seppa1Mesh)
+
+  // Flame guard core: blackened steel plate
+  const tsubaCoreGeo = new BoxGeometry(2.5, 0.28, 2.5)
+  const tsubaCoreMat = new MeshStandardMaterial({
+    color: 0x180603,
+    emissive: 0x551100,
+    emissiveIntensity: 0.5,
+    roughness: 0.45,
+  })
+  const tsubaCore = new Mesh(tsubaCoreGeo, tsubaCoreMat)
+  tsubaCore.position.set(0, 0.36, 0)
+  katana.add(tsubaCore)
+
+  // Flamed Golden Border rim (flame petal notches)
+  const tsubaRimGeo = new BoxGeometry(3.1, 0.18, 3.1)
   const tsubaRimMesh = new Mesh(tsubaRimGeo, goldMat)
-  tsubaRimMesh.position.set(0, 0.3, 0)
+  tsubaRimMesh.position.set(0, 0.36, 0)
   katana.add(tsubaRimMesh)
 
+  // Upper Seppa
+  const seppa2Geo = new BoxGeometry(1.6, 0.12, 1.8)
+  const seppa2Mesh = new Mesh(seppa2Geo, goldMat)
+  seppa2Mesh.position.set(0, 0.5, 0)
+  katana.add(seppa2Mesh)
+
   // Habaki (Blade collar)
-  const habakiGeo = new BoxGeometry(0.75, 1.0, 1.1)
+  const habakiGeo = new BoxGeometry(0.78, 1.1, 1.25)
   const habakiMesh = new Mesh(habakiGeo, goldMat)
-  habakiMesh.position.set(0, 0.9, 0)
+  habakiMesh.position.set(0, 1.0, 0)
   katana.add(habakiMesh)
 
-  // 3. Nichirin Blade: Long black steel katana blade with fiery crimson-orange edge
-  const bladeLength = 19
-  const bladeGeo = new BoxGeometry(0.35, bladeLength, 1.3)
-  const bladeMat = new MeshStandardMaterial({
-    color: 0x0a0a0a,
-    metalness: 0.95,
-    roughness: 0.15,
-    emissive: 0x220500,
-    emissiveIntensity: 0.35,
-  })
-  const bladeMesh = new Mesh(bladeGeo, bladeMat)
-  bladeMesh.position.set(0, bladeLength / 2 + 1.2, 0)
-  katana.add(bladeMesh)
+  // 3. Nichirin Blade (Curved Shinogi-Zukuri Mastercrafted Katana)
+  const bladeSegments = 5
+  const segmentLength = 3.8
+  const totalLength = bladeSegments * segmentLength
 
-  // Fiery Cutting Edge (Glowing red-orange sun breathing edge)
-  const edgeGeo = new BoxGeometry(0.4, bladeLength, 0.35)
-  const edgeMat = new MeshBasicMaterial({
-    color: 0xff3a00,
+  const spineMat = new MeshStandardMaterial({
+    color: 0x0c0d11,
+    metalness: 0.96,
+    roughness: 0.14,
+    emissive: 0x1f0600,
+    emissiveIntensity: 0.4,
   })
-  const edgeMesh = new Mesh(edgeGeo, edgeMat)
-  edgeMesh.position.set(0, bladeLength / 2 + 1.2, 0.65)
-  katana.add(edgeMesh)
+  const edgeMat = new MeshStandardMaterial({
+    color: 0xff4500,
+    emissive: 0xff3300,
+    emissiveIntensity: 0.95,
+    metalness: 0.8,
+    roughness: 0.1,
+  })
 
-  // Kissaki (Angled blade tip)
-  const tipGeo = new BoxGeometry(0.35, 2.0, 1.0)
-  const tipMesh = new Mesh(tipGeo, bladeMat)
-  tipMesh.position.set(0, bladeLength + 1.9, -0.1)
-  tipMesh.rotation.x = -0.4
+  // Curved segmented blade
+  let curY = 1.5
+  let curZ = 0.0
+  const soriAngle = -0.016 // subtle realistic curvature
+
+  for (let s = 0; s < bladeSegments; s++) {
+    // Spine (Mune)
+    const spineGeo = new BoxGeometry(0.34, segmentLength + 0.1, 1.1)
+    const spinePart = new Mesh(spineGeo, spineMat)
+    spinePart.position.set(0, curY + segmentLength / 2, curZ)
+    spinePart.rotation.x = s * soriAngle
+    katana.add(spinePart)
+
+    // Beveled fiery cutting edge (Ha & Hamon)
+    const edgeGeo = new BoxGeometry(0.38, segmentLength + 0.1, 0.4)
+    const edgePart = new Mesh(edgeGeo, edgeMat)
+    edgePart.position.set(0, curY + segmentLength / 2, curZ + 0.65)
+    edgePart.rotation.x = s * soriAngle
+    katana.add(edgePart)
+
+    curY += segmentLength * Math.cos(s * soriAngle)
+    curZ += segmentLength * Math.sin(s * soriAngle)
+  }
+
+  // Kissaki (Angled Japanese Katana Tip)
+  const tipGeo = new BoxGeometry(0.34, 2.2, 1.0)
+  const tipMesh = new Mesh(tipGeo, spineMat)
+  tipMesh.position.set(0, curY + 0.9, curZ - 0.15)
+  tipMesh.rotation.x = -0.38
   katana.add(tipMesh)
 
-  // 4. Flaming Fire Geometry along the Blade (Hinokami Kagura Fire Ribbons)
+  // 4. Volumetric Hinokami Kagura Fire (Textured Additive Flame Planes)
+  const flameTex = getRealisticFlameTexture()
   const flameMeshes: Mesh[] = []
-  const flameColors = [0xff1100, 0xff5500, 0xffbb00, 0xff3300]
 
-  for (let i = 0; i < 6; i++) {
-    const flameGeo = new BoxGeometry(0.6 + (i % 2) * 0.4, 3.8 + (i % 3) * 1.4, 1.7 + (i % 2) * 0.7)
-    const flameMat = new MeshBasicMaterial({
-      color: flameColors[i % flameColors.length],
-      transparent: true,
-      opacity: 0.78,
-      side: DoubleSide,
-    })
+  const flameMat = new MeshBasicMaterial({
+    map: flameTex,
+    transparent: true,
+    blending: AdditiveBlending,
+    side: DoubleSide,
+    depthWrite: false,
+  })
+
+  // 10 textured flame planes positioned and angled along the blade edge
+  for (let i = 0; i < 10; i++) {
+    const flameGeo = new PlaneGeometry(2.6 + (i % 2) * 0.6, 5.0 + (i % 3) * 0.8)
     const fMesh = new Mesh(flameGeo, flameMat)
+    const yPos = 3.0 + i * 1.7
     fMesh.position.set(
-      (Math.random() - 0.5) * 0.45,
-      2.8 + i * 3.0,
-      (Math.random() - 0.5) * 0.5 + 0.35,
+      (Math.random() - 0.5) * 0.3,
+      yPos,
+      0.65 + (Math.random() - 0.5) * 0.25,
     )
+    fMesh.rotation.y = (Math.random() - 0.5) * 0.4
+    fMesh.rotation.z = -0.15 + (Math.random() - 0.5) * 0.2
     katana.add(fMesh)
     flameMeshes.push(fMesh)
   }
 
-  // 5. 3D Fiery Embers / Sparks floating around the blade
-  const embers: Mesh[] = []
-  const emberMat = new MeshBasicMaterial({
-    color: 0xffe57f,
+  // Twisting Helical Fire Spirals wrapping around blade
+  const spiralMat = new MeshBasicMaterial({
+    map: flameTex,
+    transparent: true,
+    blending: AdditiveBlending,
+    side: DoubleSide,
+    depthWrite: false,
+    opacity: 0.85,
   })
-  for (let i = 0; i < 14; i++) {
-    const emberGeo = new BoxGeometry(0.35, 0.35, 0.35)
+  const spiralGeo1 = new PlaneGeometry(3.2, 16.0)
+  const spiralMesh1 = new Mesh(spiralGeo1, spiralMat)
+  spiralMesh1.position.set(0, 10.5, 0.3)
+  katana.add(spiralMesh1)
+
+  const spiralGeo2 = new PlaneGeometry(2.8, 14.0)
+  const spiralMesh2 = new Mesh(spiralGeo2, spiralMat)
+  spiralMesh2.position.set(0, 11.5, 0.3)
+  spiralMesh2.rotation.y = Math.PI / 2
+  katana.add(spiralMesh2)
+
+  // 5. Realistic Floating Fire Embers / Spark Cinders
+  const emberTex = getRealisticEmberTexture()
+  const emberMat = new MeshBasicMaterial({
+    map: emberTex,
+    transparent: true,
+    blending: AdditiveBlending,
+    side: DoubleSide,
+    depthWrite: false,
+  })
+
+  const embers: Mesh[] = []
+  for (let i = 0; i < 18; i++) {
+    const emberGeo = new PlaneGeometry(0.85, 0.85)
     const emberMesh = new Mesh(emberGeo, emberMat)
     emberMesh.position.set(
       (Math.random() - 0.5) * 3.5,
-      2.0 + Math.random() * bladeLength,
-      (Math.random() - 0.5) * 3.5,
+      2.0 + Math.random() * totalLength,
+      (Math.random() - 0.5) * 3.5 + 0.4,
     )
     katana.add(emberMesh)
     embers.push(emberMesh)
@@ -621,7 +785,7 @@ function buildNichirinKatana(): {
     }
   })
 
-  return { katanaGroup: katana, flameMeshes, embers }
+  return { katanaGroup: katana, flameMeshes, embers, spiralMesh1, spiralMesh2 }
 }
 
 /**
@@ -633,6 +797,8 @@ class SlayerFlameAnimation extends PlayerAnimation {
   katanaGroup: Group | null = null
   flameMeshes: Mesh[] = []
   embers: Mesh[] = []
+  spiralMesh1: Mesh | null = null
+  spiralMesh2: Mesh | null = null
   private attachedPlayer: PlayerObject | null = null
 
   private ensureKatana(player: PlayerObject) {
@@ -648,12 +814,14 @@ class SlayerFlameAnimation extends PlayerAnimation {
     this.katanaGroup = built.katanaGroup
     this.flameMeshes = built.flameMeshes
     this.embers = built.embers
+    this.spiralMesh1 = built.spiralMesh1
+    this.spiralMesh2 = built.spiralMesh2
     this.attachedPlayer = player
 
     // Position katana in right hand (y = -10.5 on rightArm)
     this.katanaGroup.position.set(0, -10.5, 0.4)
     // Angle katana diagonally forward across the chest in authentic Demon Slayer battle guard
-    this.katanaGroup.rotation.set(0.65, -0.35, -0.1)
+    this.katanaGroup.rotation.set(0.68, -0.35, -0.08)
     ;(player.skin.rightArm as any).add(this.katanaGroup)
   }
 
@@ -693,13 +861,13 @@ class SlayerFlameAnimation extends PlayerAnimation {
     // Left arm joins from below to hold lower hilt
     // Both arms bent naturally, presenting the flaming blade diagonally forward
     const strikeOffset = this.isHovered ? -0.35 : 0
-    player.skin.rightArm.rotation.x = -0.75 + strikeOffset + breath + rageTremor
+    player.skin.rightArm.rotation.x = -0.74 + strikeOffset + breath + rageTremor
     player.skin.rightArm.rotation.y = -0.32
-    player.skin.rightArm.rotation.z = -0.18 + (this.isHovered ? -0.15 : 0)
+    player.skin.rightArm.rotation.z = -0.16 + (this.isHovered ? -0.15 : 0)
 
-    player.skin.leftArm.rotation.x = -0.65 + strikeOffset + breath + rageTremor
+    player.skin.leftArm.rotation.x = -0.66 + strikeOffset + breath + rageTremor
     player.skin.leftArm.rotation.y = 0.42
-    player.skin.leftArm.rotation.z = 0.28 + (this.isHovered ? 0.15 : 0)
+    player.skin.leftArm.rotation.z = 0.26 + (this.isHovered ? 0.15 : 0)
 
     // 5. Solid Battle Lunge Legs
     player.skin.rightLeg.rotation.x = 0.42 + breath * 0.4
@@ -715,26 +883,42 @@ class SlayerFlameAnimation extends PlayerAnimation {
     player.skin.rightLeg.position.set(-1.9, -12, -0.1)
     player.skin.leftLeg.position.set(1.9, -12, -0.1)
 
-    // 6. Dynamic Blade Flame Animation
-    const flameSpeed = t * (this.isHovered ? 24 : 16)
+    // 6. Dynamic Realistic Blade Flame Animation
+    const flameSpeed = t * (this.isHovered ? 18 : 12)
     for (let i = 0; i < this.flameMeshes.length; i++) {
-      const fMesh = this.flameMeshes[i]
-      const wave = Math.sin(flameSpeed + i * 2.1)
-      const cosWave = Math.cos(flameSpeed * 1.2 + i * 1.7)
+      const f = this.flameMeshes[i]
+      const phase = flameSpeed + i * 1.35
+      const wave = Math.sin(phase * 1.6)
+      const cosWave = Math.cos(phase * 1.3)
 
-      fMesh.scale.x = (this.isHovered ? 1.4 : 1.0) + wave * 0.35
-      fMesh.scale.z = (this.isHovered ? 1.4 : 1.0) + cosWave * 0.3
-      fMesh.rotation.y = flameSpeed * 0.3 + i
-      fMesh.position.x = wave * 0.25
-      fMesh.position.z = cosWave * 0.25 + 0.3
+      f.scale.x = (this.isHovered ? 1.5 : 1.1) + wave * 0.35
+      f.scale.y = (this.isHovered ? 1.6 : 1.2) + cosWave * 0.35
+      f.rotation.z = -0.15 + wave * 0.2
+      f.rotation.y = cosWave * 0.3
+      f.position.x = wave * 0.2
+      f.position.z = 0.65 + cosWave * 0.2
     }
 
-    // 7. Rising Embers along the Blade
+    // Dynamic spiral fire ribbons coiling along blade
+    if (this.spiralMesh1) {
+      this.spiralMesh1.rotation.y = flameSpeed * 0.6
+      this.spiralMesh1.scale.setScalar(1.0 + Math.sin(flameSpeed * 1.8) * 0.15)
+    }
+    if (this.spiralMesh2) {
+      this.spiralMesh2.rotation.y = -flameSpeed * 0.5 + Math.PI / 2
+      this.spiralMesh2.scale.setScalar(1.0 + Math.cos(flameSpeed * 2.0) * 0.15)
+    }
+
+    // 7. Realistic Rising Ember Sparks with turbulent drift
     for (let i = 0; i < this.embers.length; i++) {
       const ember = this.embers[i]
-      ember.position.y = ((ember.position.y - 2.0 + 0.3) % 19) + 2.0
-      const pulse = Math.sin(flameSpeed * 1.5 + i * 1.5)
-      ember.scale.setScalar(0.7 + pulse * 0.5)
+      const eTime = t * 8 + i * 1.6
+      ember.position.y = ((ember.position.y - 1.5 + 0.3) % 20) + 1.5
+      ember.position.x = Math.sin(eTime * 0.8) * (1.2 + (i % 3) * 0.4)
+      ember.position.z = Math.cos(eTime * 0.8) * (1.2 + (i % 3) * 0.4) + 0.4
+      const pulse = Math.sin(eTime * 2.4) * 0.35 + 0.75
+      ember.scale.setScalar(pulse)
+      ember.rotation.z = eTime * 0.4
     }
   }
 }
