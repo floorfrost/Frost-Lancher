@@ -546,7 +546,7 @@ function buildNichirinKatana(): {
   katana.add(habakiMesh)
 
   // 3. Nichirin Blade: Long black steel katana blade with fiery crimson-orange edge
-  const bladeLength = 22
+  const bladeLength = 19
   const bladeGeo = new BoxGeometry(0.35, bladeLength, 1.3)
   const bladeMat = new MeshStandardMaterial({
     color: 0x0a0a0a,
@@ -580,7 +580,7 @@ function buildNichirinKatana(): {
   const flameColors = [0xff1100, 0xff5500, 0xffbb00, 0xff3300]
 
   for (let i = 0; i < 6; i++) {
-    const flameGeo = new BoxGeometry(0.6 + (i % 2) * 0.4, 4.2 + (i % 3) * 1.6, 1.8 + (i % 2) * 0.8)
+    const flameGeo = new BoxGeometry(0.6 + (i % 2) * 0.4, 3.8 + (i % 3) * 1.4, 1.7 + (i % 2) * 0.7)
     const flameMat = new MeshBasicMaterial({
       color: flameColors[i % flameColors.length],
       transparent: true,
@@ -589,9 +589,9 @@ function buildNichirinKatana(): {
     })
     const fMesh = new Mesh(flameGeo, flameMat)
     fMesh.position.set(
-      (Math.random() - 0.5) * 0.5,
-      3.2 + i * 3.5,
-      (Math.random() - 0.5) * 0.6 + 0.35,
+      (Math.random() - 0.5) * 0.45,
+      2.8 + i * 3.0,
+      (Math.random() - 0.5) * 0.5 + 0.35,
     )
     katana.add(fMesh)
     flameMeshes.push(fMesh)
@@ -613,6 +613,13 @@ function buildNichirinKatana(): {
     katana.add(emberMesh)
     embers.push(emberMesh)
   }
+
+  // Ensure nothing in the katana is ever frustum-culled
+  katana.traverse((obj: any) => {
+    if (obj.isMesh) {
+      obj.frustumCulled = false
+    }
+  })
 
   return { katanaGroup: katana, flameMeshes, embers }
 }
@@ -643,8 +650,10 @@ class SlayerFlameAnimation extends PlayerAnimation {
     this.embers = built.embers
     this.attachedPlayer = player
 
-    this.katanaGroup.position.set(0, -10.5, 0.5)
-    this.katanaGroup.rotation.set(Math.PI / 2, 0, -0.15)
+    // Position katana in right hand (y = -10.5 on rightArm)
+    this.katanaGroup.position.set(0, -10.5, 0.4)
+    // Angle katana diagonally forward across the chest in authentic Demon Slayer battle guard
+    this.katanaGroup.rotation.set(0.65, -0.35, -0.1)
     ;(player.skin.rightArm as any).add(this.katanaGroup)
   }
 
@@ -662,40 +671,43 @@ class SlayerFlameAnimation extends PlayerAnimation {
     const t = this.progress
     const speed = this.isHovered ? 2.2 : 1.4
 
-    // 1. Total Concentration Flame Breathing & Battle Crouch
-    const breath = Math.sin(t * speed * 2) * 0.03
-    const rageTremor = Math.sin(t * 30) * 0.005
+    // 1. Total Concentration Breathing & Dynamic Martial Crouch
+    const breath = Math.sin(t * speed * 2) * 0.025
+    const rageTremor = Math.sin(t * 30) * 0.004
 
-    player.position.y = -2.5 + Math.sin(t * speed) * 0.2
-    player.position.x = Math.sin(t * (speed * 0.5)) * 0.3
+    player.position.y = -3.2 + Math.sin(t * speed) * 0.15
+    player.position.x = Math.sin(t * (speed * 0.5)) * 0.25
 
-    // 2. Battle Stance Body Rotation
-    player.rotation.y = -0.42
-    player.rotation.x = 0.14 + breath
-    player.rotation.z = -0.04
+    // 2. Dynamic 3D Samurai battle angle
+    player.rotation.y = -0.38
+    player.rotation.x = 0.12 + breath
+    player.rotation.z = -0.02
 
-    // 3. Fierce Head Stare along the blade
-    player.skin.head.rotation.x = 0.12 + Math.sin(t * speed) * 0.02
-    player.skin.head.rotation.y = 0.44
-    player.skin.head.rotation.z = -0.05
+    // 3. Fierce Head Stare focused forward along the blade
+    player.skin.head.rotation.x = 0.08 + Math.sin(t * speed) * 0.015
+    player.skin.head.rotation.y = 0.35
+    player.skin.head.rotation.z = -0.03
 
-    // 4. Two-Handed Katana Combat Stance
-    const strikeOffset = this.isHovered ? -0.55 : 0
-    player.skin.rightArm.rotation.x = -1.22 + strikeOffset + breath + rageTremor
-    player.skin.rightArm.rotation.y = -0.38
-    player.skin.rightArm.rotation.z = -0.28 + (this.isHovered ? -0.25 : 0)
+    // 4. Authentic Two-Handed Katana Guard (Chudan-no-Kamae):
+    // Right arm holds upper hilt in front of chest/torso
+    // Left arm joins from below to hold lower hilt
+    // Both arms bent naturally, presenting the flaming blade diagonally forward
+    const strikeOffset = this.isHovered ? -0.35 : 0
+    player.skin.rightArm.rotation.x = -0.75 + strikeOffset + breath + rageTremor
+    player.skin.rightArm.rotation.y = -0.32
+    player.skin.rightArm.rotation.z = -0.18 + (this.isHovered ? -0.15 : 0)
 
-    player.skin.leftArm.rotation.x = -1.14 + strikeOffset + breath + rageTremor
-    player.skin.leftArm.rotation.y = 0.52
-    player.skin.leftArm.rotation.z = 0.36 + (this.isHovered ? 0.25 : 0)
+    player.skin.leftArm.rotation.x = -0.65 + strikeOffset + breath + rageTremor
+    player.skin.leftArm.rotation.y = 0.42
+    player.skin.leftArm.rotation.z = 0.28 + (this.isHovered ? 0.15 : 0)
 
-    // 5. Solid Martial Legs
-    player.skin.rightLeg.rotation.x = 0.38 + breath * 0.5
-    player.skin.rightLeg.rotation.y = -0.15
-    player.skin.rightLeg.rotation.z = 0.12
-    player.skin.leftLeg.rotation.x = -0.42 - breath * 0.5
-    player.skin.leftLeg.rotation.y = 0.15
-    player.skin.leftLeg.rotation.z = -0.12
+    // 5. Solid Battle Lunge Legs
+    player.skin.rightLeg.rotation.x = 0.42 + breath * 0.4
+    player.skin.rightLeg.rotation.y = -0.12
+    player.skin.rightLeg.rotation.z = 0.1
+    player.skin.leftLeg.rotation.x = -0.44 - breath * 0.4
+    player.skin.leftLeg.rotation.y = 0.12
+    player.skin.leftLeg.rotation.z = -0.1
 
     // Base body alignment
     player.skin.head.position.set(0, 0, 0)
@@ -710,17 +722,17 @@ class SlayerFlameAnimation extends PlayerAnimation {
       const wave = Math.sin(flameSpeed + i * 2.1)
       const cosWave = Math.cos(flameSpeed * 1.2 + i * 1.7)
 
-      fMesh.scale.x = (this.isHovered ? 1.5 : 1.0) + wave * 0.45
-      fMesh.scale.z = (this.isHovered ? 1.5 : 1.0) + cosWave * 0.4
+      fMesh.scale.x = (this.isHovered ? 1.4 : 1.0) + wave * 0.35
+      fMesh.scale.z = (this.isHovered ? 1.4 : 1.0) + cosWave * 0.3
       fMesh.rotation.y = flameSpeed * 0.3 + i
-      fMesh.position.x = wave * 0.35
-      fMesh.position.z = cosWave * 0.35 + 0.35
+      fMesh.position.x = wave * 0.25
+      fMesh.position.z = cosWave * 0.25 + 0.3
     }
 
     // 7. Rising Embers along the Blade
     for (let i = 0; i < this.embers.length; i++) {
       const ember = this.embers[i]
-      ember.position.y = ((ember.position.y - 2.0 + 0.3) % 22) + 2.0
+      ember.position.y = ((ember.position.y - 2.0 + 0.3) % 19) + 2.0
       const pulse = Math.sin(flameSpeed * 1.5 + i * 1.5)
       ember.scale.setScalar(0.7 + pulse * 0.5)
     }
@@ -736,15 +748,21 @@ function updateCameraFraming() {
 
   const fov = 40
   const rad = (fov / 2) * Math.PI / 180
-  const targetCharHeightPx = 340
 
-  const visibleHeight = (32 / targetCharHeightPx) * height
+  const isSlayer = selectedAnimation.value === 'slayer'
+  // Generous height units to give full visual range and headroom for the entire sword
+  const charHeightUnits = isSlayer ? 56 : 32
+  const targetCharHeightPx = isSlayer ? 380 : 340
+
+  const visibleHeight = (charHeightUnits / targetCharHeightPx) * height
   const distance = visibleHeight / (2 * Math.tan(rad))
 
-  // In skinview3d, player model center is at Y = 0 (head at +16, feet at -16).
-  const targetY = selectedAnimation.value === 'gojo' || selectedAnimation.value === 'slayer' ? -2.5 : -2
+  // targetY = -4.2 for slayer centers the character and full sword with plenty of headroom
+  const targetY = isSlayer ? -4.2 : (selectedAnimation.value === 'gojo' ? -2.5 : -2)
 
   viewer.camera.fov = fov
+  viewer.camera.near = 0.1
+  viewer.camera.far = 10000
   viewer.camera.updateProjectionMatrix()
 
   if (viewer.controls) {
@@ -784,28 +802,26 @@ function updateLighting() {
   } else if (selectedAnimation.value === 'slayer') {
     if (sunLight) sunLight.visible = false
     if (rimLight) rimLight.visible = false
+    if (fierySideLight) fierySideLight.visible = false
+
+    // KEEP SKIN COLOR 100% NATURAL: Pure clean white ambient light
+    viewer.globalLight.color.setHex(0xffffff)
+    viewer.globalLight.intensity = 3.0
 
     if (!swordPointLight) {
-      swordPointLight = new PointLight(0xff4500, 5.5, 50)
-      swordPointLight.position.set(0, 5, 15)
+      // Soft amber glow localized around the blade only, not washing out face/skin
+      swordPointLight = new PointLight(0xff8833, 1.8, 20)
+      swordPointLight.position.set(0, 0, 10)
       ;(viewer.scene as any).add(swordPointLight)
     }
     if (!fieryRimLight) {
-      fieryRimLight = new DirectionalLight(0xff1800, 4.2)
-      fieryRimLight.position.set(20, 25, -45)
+      // Positioned behind the character to create back rim light only
+      fieryRimLight = new DirectionalLight(0xff4400, 1.6)
+      fieryRimLight.position.set(0, 25, -50)
       ;(viewer.scene as any).add(fieryRimLight)
-    }
-    if (!fierySideLight) {
-      fierySideLight = new DirectionalLight(0xff8c00, 3.4)
-      fierySideLight.position.set(-35, 15, -25)
-      ;(viewer.scene as any).add(fierySideLight)
     }
     swordPointLight.visible = true
     fieryRimLight.visible = true
-    fierySideLight.visible = true
-
-    viewer.globalLight.color.setHex(0xff4a10)
-    viewer.globalLight.intensity = 2.5
   } else {
     if (sunLight) sunLight.visible = false
     if (rimLight) rimLight.visible = false
@@ -990,7 +1006,7 @@ onUnmounted(() => {
 }
 
 .slayer-active-canvas {
-  filter: drop-shadow(0 0 20px rgba(255, 69, 0, 0.65)) drop-shadow(0 0 45px rgba(255, 140, 0, 0.35));
+  filter: drop-shadow(0 4px 16px rgba(255, 68, 0, 0.22));
 }
 
 /* Valorant Jett Wind & Air Draft Effects */
