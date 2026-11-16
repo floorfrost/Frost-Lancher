@@ -3,9 +3,8 @@
     ref="wrapperRef"
     class="home-character-stage-wrapper relative flex flex-col items-center justify-center select-none pointer-events-auto"
     :title="t('userSkin.libraryTitle')"
-    @mouseenter="onMouseEnter"
-    @mouseleave="onMouseLeave"
     @click="onClick"
+    @contextmenu.prevent="onContextMenu"
   >
     <!-- Floating 3D Character Canvas (Contained within stage wrapper) -->
     <div class="character-canvas-box absolute inset-0 pointer-events-none z-10 overflow-visible" aria-hidden="true">
@@ -330,6 +329,13 @@
         <div class="screen-fire-mote fm8" />
       </div>
     </Teleport>
+
+    <!-- GTA 5 Style Circular Animation Switching Wheel (Opened on right click) -->
+    <HomeAnimationRadialWheel
+      v-model="showRadialWheel"
+      :selected="selectedAnimation"
+      @select="onSelectAnimationFromWheel"
+    />
   </div>
 </template>
 
@@ -356,13 +362,15 @@ import {
 import { injection } from '@/util/inject'
 import { kUserContext } from '@/composables/user'
 import { useUserSkin } from '@/composables/userSkin'
-import { useSkinAnimation } from '@/composables/userSkinAnimation'
+import { SkinAnimationType, useSkinAnimation } from '@/composables/userSkinAnimation'
 import steveSkin from '@/assets/steve_skin.png'
+import HomeAnimationRadialWheel from './HomeAnimationRadialWheel.vue'
 
 const { t } = useI18n()
 const router = useRouter()
 const wrapperRef = ref<HTMLElement | null>(null)
 const canvasRef = ref<HTMLCanvasElement | null>(null)
+const showRadialWheel = ref(false)
 let viewer: SkinViewer | undefined
 let customAnim: (JettFloatingAnimation | GojoFloatingAnimation | SlayerFlameAnimation) | undefined
 let sunLight: DirectionalLight | undefined
@@ -882,7 +890,7 @@ class SlayerFlameAnimation extends PlayerAnimation {
     this.ensureKatana(player)
 
     const t = this.progress
-    const speed = this.isHovered ? 2.2 : 1.4
+    const speed = 1.4
 
     // 1. Total Concentration Breathing & Dynamic Martial Crouch
     const breath = Math.sin(t * speed * 2) * 0.025
@@ -905,14 +913,13 @@ class SlayerFlameAnimation extends PlayerAnimation {
     // Right arm holds upper hilt in front of chest/torso
     // Left arm joins from below to hold lower hilt
     // Both arms bent naturally, presenting the flaming blade diagonally forward
-    const strikeOffset = this.isHovered ? -0.35 : 0
-    player.skin.rightArm.rotation.x = -0.74 + strikeOffset + breath + rageTremor
+    player.skin.rightArm.rotation.x = -0.74 + breath + rageTremor
     player.skin.rightArm.rotation.y = -0.32
-    player.skin.rightArm.rotation.z = -0.16 + (this.isHovered ? -0.15 : 0)
+    player.skin.rightArm.rotation.z = -0.16
 
-    player.skin.leftArm.rotation.x = -0.66 + strikeOffset + breath + rageTremor
+    player.skin.leftArm.rotation.x = -0.66 + breath + rageTremor
     player.skin.leftArm.rotation.y = 0.42
-    player.skin.leftArm.rotation.z = 0.26 + (this.isHovered ? 0.15 : 0)
+    player.skin.leftArm.rotation.z = 0.26
 
     // 5. Solid Battle Lunge Legs
     player.skin.rightLeg.rotation.x = 0.42 + breath * 0.4
@@ -929,7 +936,7 @@ class SlayerFlameAnimation extends PlayerAnimation {
     player.skin.leftLeg.position.set(1.9, -12, -0.1)
 
     // 6. Dynamic Blade Edge & Tip Flame Animation (Licking strictly from sharp points)
-    const flameSpeed = t * (this.isHovered ? 18 : 12)
+    const flameSpeed = t * 12
 
     for (let i = 0; i < this.flameMeshes.length; i++) {
       const f = this.flameMeshes[i]
@@ -937,8 +944,8 @@ class SlayerFlameAnimation extends PlayerAnimation {
       const wave = Math.sin(phase * 1.6)
       const cosWave = Math.cos(phase * 1.3)
 
-      f.scale.x = (this.isHovered ? 1.4 : 1.05) + wave * 0.25
-      f.scale.y = (this.isHovered ? 1.5 : 1.15) + cosWave * 0.25
+      f.scale.x = 1.05 + wave * 0.25
+      f.scale.y = 1.15 + cosWave * 0.25
       f.rotation.z = -0.14 + wave * 0.15
       f.position.x = wave * 0.12
     }
@@ -968,15 +975,15 @@ function updateCameraFraming() {
   const rad = (fov / 2) * Math.PI / 180
 
   const isSlayer = selectedAnimation.value === 'slayer'
-  // Generous height units to give full visual range and headroom for the entire sword
-  const charHeightUnits = isSlayer ? 58 : 32
-  const targetCharHeightPx = isSlayer ? 380 : 340
+  // Consistent character height units across all animations so the skin model scale matches Gojo and Jett
+  const charHeightUnits = 32
+  const targetCharHeightPx = 340
 
   const visibleHeight = (charHeightUnits / targetCharHeightPx) * height
   const distance = visibleHeight / (2 * Math.tan(rad))
 
-  // targetY = -4.3 for slayer centers the character and full sword with plenty of headroom
-  const targetY = isSlayer ? -4.3 : (selectedAnimation.value === 'gojo' ? -2.5 : -2)
+  // Center camera with character's martial crouch stance in Demon Slayer
+  const targetY = isSlayer ? -3.8 : (selectedAnimation.value === 'gojo' ? -2.5 : -2)
 
   viewer.camera.fov = fov
   viewer.camera.near = 0.1
@@ -1119,16 +1126,17 @@ function handleResize() {
   updateCameraFraming()
 }
 
-function onMouseEnter() {
-  if (customAnim) customAnim.isHovered = true
-}
-
-function onMouseLeave() {
-  if (customAnim) customAnim.isHovered = false
-}
-
 function onClick() {
   router.push('/me')
+}
+
+function onContextMenu(e: MouseEvent) {
+  e.preventDefault()
+  showRadialWheel.value = true
+}
+
+function onSelectAnimationFromWheel(type: SkinAnimationType) {
+  selectedAnimation.value = type
 }
 
 watch(selectedAnimation, () => {

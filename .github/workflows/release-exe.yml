@@ -73,14 +73,27 @@ jobs:
         run: |
           if (-not (Get-Command makensis -ErrorAction SilentlyContinue)) {
             choco install nsis -y
-            Write-Host "C:\Program Files (x86)\NSIS" >> $env:GITHUB_PATH
+            "C:\Program Files (x86)\NSIS" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
           }
 
       - name: Build Windows Installer (.exe)
         shell: pwsh
         run: |
           $ver = "${{ steps.vars.outputs.version }}"
-          makensis /DVERSION=$ver fl-electron-app/installer.nsi
+          $makensis = (Get-Command makensis -ErrorAction SilentlyContinue)?.Source
+          if (-not $makensis -and (Test-Path "C:\Program Files (x86)\NSIS\makensis.exe")) {
+            $makensis = "C:\Program Files (x86)\NSIS\makensis.exe"
+          }
+          if (-not $makensis) {
+            $makensis = "makensis"
+          }
+          Write-Host "Using NSIS compiler: $makensis for version $ver"
+          Push-Location fl-electron-app
+          try {
+            & $makensis /DVERSION=$ver installer.nsi
+          } finally {
+            Pop-Location
+          }
 
       - name: Publish or Update GitHub Release
         uses: softprops/action-gh-release@v2

@@ -34,3 +34,46 @@ export async function moveWindowsWindow(pid: number, bounds: MonitorBounds) {
     throw new Error('SetWindowPos failed')
   }
 }
+
+let setForegroundWindow: any
+let showWindow: any
+let bringWindowToTop: any
+
+function getFocusFunctions() {
+  if (!setForegroundWindow) {
+    try {
+      setForegroundWindow = user32.func('__stdcall', 'SetForegroundWindow', 'bool', [handle])
+      showWindow = user32.func('__stdcall', 'ShowWindow', 'bool', [handle, 'int'])
+      bringWindowToTop = user32.func('__stdcall', 'BringWindowToTop', 'bool', [handle])
+    } catch {
+      // ignore if mock or unsupported
+    }
+  }
+  return { setForegroundWindow, showWindow, bringWindowToTop }
+}
+
+export function focusWindowsWindow(pid: number): boolean {
+  try {
+    const { setForegroundWindow, showWindow, bringWindowToTop } = getFocusFunctions()
+    let result: bigint | undefined
+    enumWindows((candidate: bigint) => {
+      const candidatePid = [0]
+      getWindowThreadProcessId(candidate, candidatePid)
+      if (candidatePid[0] === pid && isWindowVisible(candidate)) {
+        result = candidate
+        return false
+      }
+      return true
+    }, 0)
+
+    if (result) {
+      if (showWindow) showWindow(result, 9) // SW_RESTORE
+      if (bringWindowToTop) bringWindowToTop(result)
+      if (setForegroundWindow) setForegroundWindow(result)
+      return true
+    }
+  } catch {
+    // fallback
+  }
+  return false
+}

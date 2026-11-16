@@ -200,7 +200,8 @@ provide(kInFocusMode, computed({
 }))
 
 provide(kLaunchButton, useLaunchButton())
-provide(kInstanceLaunchCoordinator, useInstanceLaunchCoordinator())
+const launchCoordinator = useInstanceLaunchCoordinator()
+provide(kInstanceLaunchCoordinator, launchCoordinator)
 provide(kMultiplayerEntry, useMultiplayerEntry())
 
 const sidebarSettings = useSidebarSettings()
@@ -290,7 +291,7 @@ const inGameOverlayShown = ref(false)
 onMounted(() => {
   if (typeof windowController !== 'undefined' && windowController.on) {
     windowController.on('in-game-overlay-open', () => {
-      inGameOverlayShown.value = !inGameOverlayShown.value
+      inGameOverlayShown.value = true
     })
   }
 
@@ -299,6 +300,10 @@ onMounted(() => {
       const activeEl = document.activeElement
       const isInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')
       if (!isInput) {
+        const isGameRunning = Object.values(launchCoordinator.runningInstances.value).some((c) => c > 0)
+        if (!isGameRunning && !inGameOverlayShown.value) {
+          return
+        }
         e.preventDefault()
         inGameOverlayShown.value = !inGameOverlayShown.value
       }

@@ -1,23 +1,49 @@
 import { ElectronController } from '@/ElectronController'
 import { app, globalShortcut, ipcMain } from 'electron'
 import { ControllerPlugin } from './plugin'
+import { LaunchService } from '@xmcl/runtime/launch'
+import { focusGameWindow } from '@/utils/focusGameWindow'
 
 export const inGameOverlayPlugin: ControllerPlugin = function (this: ElectronController) {
   let isOverlayActive = false
+  let launchService: LaunchService | undefined
+
+  this.app.waitEngineReady().then(() => {
+    this.app.registry.get(LaunchService).then((service) => {
+      launchService = service
+    }).catch((err) => {
+      this.logger.warn('Failed to get LaunchService for inGameOverlayPlugin: %o', err)
+    })
+  })
+
+  const getRunningMinecraftPids = (): number[] => {
+    if (!launchService) return []
+    return launchService.getProcesses()
+  }
 
   const registerShortcut = () => {
     try {
       // Unregister first if already registered
       globalShortcut.unregister('CommandOrControl+F')
 
-      const success = globalShortcut.register('CommandOrControl+F', () => {
+      const success = globalShortcut.register('CommandOrControl+F', async () => {
         const window = this.mainWin
         if (!window || window.isDestroyed()) return
+
+        const runningPids = getRunningMinecraftPids()
+        // If Minecraft is NOT running, do NOT trigger in-game overlay!
+        if (runningPids.length === 0) {
+          return
+        }
 
         // If launcher is already visible, focused, and on top, toggle hide to return to game
         if (window.isVisible() && window.isFocused() && isOverlayActive) {
           isOverlayActive = false
           window.setAlwaysOnTop(false)
+          const pid = runningPids[runningPids.length - 1]
+          if (pid) {
+            await focusGameWindow(pid)
+          }
           window.hide()
           return
         }
@@ -61,12 +87,22 @@ export const inGameOverlayPlugin: ControllerPlugin = function (this: ElectronCon
     }
   })
 
-  ipcMain.handle('in-game-overlay-close', () => {
+  ipcMain.handle('in-game-overlay-close', async () => {
     const window = this.mainWin
     if (window && !window.isDestroyed()) {
       isOverlayActive = false
       window.setAlwaysOnTop(false)
-      window.hide()
+
+      const runningPids = getRunningMinecraftPids()
+      if (runningPids.length > 0) {
+        // Minecraft is running: refocus Minecraft and hide overlay window
+        const pid = runningPids[runningPids.length - 1]
+        if (pid) {
+          await focusGameWindow(pid)
+        }
+        window.hide()
+      }
+      // If Minecraft is not running, do not hide the window, keeping launcher open
     }
     return true
   })

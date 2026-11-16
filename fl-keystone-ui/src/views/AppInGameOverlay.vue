@@ -231,9 +231,12 @@ import { getFacatsText } from '@/composables/modrinth'
 import { useService } from '@/composables'
 import { injection } from '@/util/inject'
 import { kInstance } from '@/composables/instance'
+import { kInstances } from '@/composables/instances'
 import {
   InstanceResourcePacksServiceKey,
   InstanceShaderPacksServiceKey,
+  MarketType,
+  type InstallMarketOptionWithInstance,
 } from '@xmcl/runtime-api'
 
 const props = defineProps<{
@@ -246,6 +249,7 @@ const emit = defineEmits<{
 
 const router = useRouter()
 const { path: instancePath, runtime } = injection(kInstance)
+const { instances } = injection(kInstances)
 const resourcePackService = useService(InstanceResourcePacksServiceKey)
 const shaderPackService = useService(InstanceShaderPacksServiceKey)
 
@@ -345,17 +349,26 @@ async function installProject(item: any) {
       throw new Error('No download file found for version')
     }
 
-    // 2. Install directly into instance
+    const destPath = instancePath.value || instances.value?.[0]?.path
+    if (!destPath) {
+      throw new Error('No Minecraft instance is currently selected.')
+    }
+
+    // 2. Install using official installFromMarket (downloads, caches & installs cleanly)
+    const option: InstallMarketOptionWithInstance = {
+      market: MarketType.Modrinth,
+      instancePath: destPath,
+      version: {
+        versionId: matchedVer.id,
+        filename: primaryFile?.filename,
+        icon: item.icon_url,
+      },
+    }
+
     if (currentTab.value === 'resourcepacks') {
-      await resourcePackService.install({
-        path: instancePath.value,
-        files: [primaryFile.url],
-      })
+      await resourcePackService.installFromMarket(option)
     } else {
-      await shaderPackService.install({
-        path: instancePath.value,
-        files: [primaryFile.url],
-      })
+      await shaderPackService.installFromMarket(option)
     }
 
     installedIds.value.push(item.project_id)
