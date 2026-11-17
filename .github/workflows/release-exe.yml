@@ -107,7 +107,9 @@ jobs:
           files: |
             fl-electron-app/build/output/Frost-Launcher-Setup-*.exe
             fl-electron-app/build/output/Frost-Launcher-Setup.exe
+            fl-electron-app/build/output/app-*.asar
             fl-electron-app/build/output/app-*.asar.gz
+            fl-electron-app/build/output/app-*.asar.sha256
             fl-electron-app/build/output/manifest.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

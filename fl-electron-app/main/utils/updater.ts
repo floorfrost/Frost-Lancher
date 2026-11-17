@@ -367,7 +367,7 @@ export class ElectronUpdater implements LauncherAppUpdater {
       operation: ElectronUpdateOperation.Manual,
     }
 
-    const hasAsar = files.some((f) => f.name === `app-${version}-${platformString}.asar`)
+    const hasAsar = files.some((f) => f.name === `app-${version}-${platformString}.asar` || f.name === `app-${version}-${platformString}.asar.gz`)
     if (this.app.platform.os === 'windows') {
       if (this.app.env === 'appx') {
         updateInfo.operation = ElectronUpdateOperation.Appx
