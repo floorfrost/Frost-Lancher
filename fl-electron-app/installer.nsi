@@ -1,7 +1,7 @@
 !include "MUI2.nsh"
 
 !ifndef VERSION
-  !define VERSION "0.74.0"
+  !define VERSION "0.75.0"
 !endif
 
 Name "Frost Launcher"

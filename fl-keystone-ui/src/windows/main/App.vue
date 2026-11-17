@@ -300,10 +300,6 @@ onMounted(() => {
       const activeEl = document.activeElement
       const isInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')
       if (!isInput) {
-        const isGameRunning = Object.values(launchCoordinator.runningInstances.value).some((c) => c > 0)
-        if (!isGameRunning && !inGameOverlayShown.value) {
-          return
-        }
         e.preventDefault()
         inGameOverlayShown.value = !inGameOverlayShown.value
       }
