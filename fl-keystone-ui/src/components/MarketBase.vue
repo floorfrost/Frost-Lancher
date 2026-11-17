@@ -263,12 +263,17 @@ onUnmounted(() => {
 
 .market-pane-fade-enter-active,
 .market-pane-fade-leave-active {
-  transition: opacity 100ms ease;
+  transition: opacity 220ms cubic-bezier(0.16, 1, 0.3, 1), transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.market-pane-fade-enter-from,
+.market-pane-fade-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
 .market-pane-fade-leave-to {
   opacity: 0;
+  transform: translateY(-8px);
 }
 
 .market-filter-cache {
@@ -290,7 +295,9 @@ onUnmounted(() => {
 }
 
 .dark .market-right {
-  background-color: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(4px);
+  background: linear-gradient(180deg, rgba(8, 14, 28, 0.65) 0%, rgba(5, 9, 20, 0.55) 100%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
 }
 </style>
